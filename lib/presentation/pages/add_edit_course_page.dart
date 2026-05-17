@@ -1,0 +1,525 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:uuid/uuid.dart';
+
+import '../../core/constants/app_colors.dart';
+import '../../core/constants/app_strings.dart';
+import '../../data/models/course.dart';
+import '../providers/course_provider.dart';
+
+class AddEditCoursePage extends ConsumerStatefulWidget {
+  const AddEditCoursePage({super.key, this.courseId});
+
+  final String? courseId;
+
+  @override
+  ConsumerState<AddEditCoursePage> createState() => _AddEditCoursePageState();
+}
+
+class _TimeEntryData {
+  int dayOfWeek;
+  int startPeriod;
+  int duration;
+  Set<int> selectedWeeks;
+
+  _TimeEntryData({
+    this.dayOfWeek = 1,
+    this.startPeriod = 1,
+    this.duration = 1,
+    Set<int>? selectedWeeks,
+  }) : selectedWeeks = selectedWeeks ?? <int>{};
+
+  _TimeEntryData copy() => _TimeEntryData(
+        dayOfWeek: dayOfWeek,
+        startPeriod: startPeriod,
+        duration: duration,
+        selectedWeeks: Set<int>.from(selectedWeeks),
+      );
+}
+
+class _AddEditCoursePageState extends ConsumerState<AddEditCoursePage> {
+  final _formKey = GlobalKey<FormState>();
+  final _nameController = TextEditingController();
+  final _teacherController = TextEditingController();
+  final _locationController = TextEditingController();
+  int _selectedColor = AppColors.presetCourseColors.first;
+  final List<_TimeEntryData> _timeEntries = [_TimeEntryData()];
+  bool _initialized = false;
+  bool _saving = false;
+
+  bool get _isEditing => widget.courseId != null;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadExistingCourse();
+    });
+  }
+
+  void _loadExistingCourse() {
+    if (!_isEditing || _initialized || !mounted) return;
+    final courses = ref.read(courseListProvider).valueOrNull;
+    if (courses == null) return;
+    for (final c in courses) {
+      if (c.id == widget.courseId) {
+        _nameController.text = c.name;
+        _teacherController.text = c.teacher;
+        _locationController.text = c.location ?? '';
+        _selectedColor = c.color;
+        _timeEntries.clear();
+        for (final td in c.timeDetails) {
+          _timeEntries.add(_TimeEntryData(
+            dayOfWeek: td.dayOfWeek,
+            startPeriod: td.startPeriod,
+            duration: td.duration,
+            selectedWeeks: Set<int>.from(td.weeks),
+          ));
+        }
+        if (_timeEntries.isEmpty) _timeEntries.add(_TimeEntryData());
+        setState(() => _initialized = true);
+        break;
+      }
+    }
+  }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _teacherController.dispose();
+    _locationController.dispose();
+    super.dispose();
+  }
+
+  String _dayLabel(int day) =>
+      ['周一', '周二', '周三', '周四', '周五', '周六', '周日'][day - 1];
+
+  // ---------------------------------------------------------------------------
+  // Save
+  // ---------------------------------------------------------------------------
+
+  Future<void> _save() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    // Each time entry must have at least one week selected
+    for (int i = 0; i < _timeEntries.length; i++) {
+      if (_timeEntries[i].selectedWeeks.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('时间段 ${i + 1} 请选择上课周次')),
+        );
+        return;
+      }
+    }
+
+    setState(() => _saving = true);
+
+    try {
+      final details = _timeEntries.map((e) {
+        final weeks = e.selectedWeeks.toList()..sort();
+        return TimeDetail(
+          dayOfWeek: e.dayOfWeek,
+          startPeriod: e.startPeriod,
+          duration: e.duration,
+          weeks: weeks,
+        );
+      }).toList();
+
+      final course = Course(
+        id: _isEditing ? widget.courseId! : const Uuid().v4(),
+        name: _nameController.text.trim(),
+        teacher: _teacherController.text.trim(),
+        location: _locationController.text.trim().isEmpty
+            ? null
+            : _locationController.text.trim(),
+        color: _selectedColor,
+        timeDetails: details,
+      );
+
+      if (_isEditing) {
+        await ref.read(courseListProvider.notifier).updateCourse(course);
+      } else {
+        await ref.read(courseListProvider.notifier).addCourse(course);
+      }
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(_isEditing ? '课程已更新' : '课程已添加')),
+        );
+        context.pop();
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('保存失败: $e')),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _saving = false);
+    }
+  }
+
+  // ---------------------------------------------------------------------------
+  // Build
+  // ---------------------------------------------------------------------------
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    // Re-attempt load when provider data arrives (e.g. stream emitted after
+    // the initial postFrameCallback).
+    ref.watch(courseListProvider);
+    if (_isEditing && !_initialized) {
+      _loadExistingCourse();
+    }
+
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(_isEditing ? AppStrings.editCourse : AppStrings.addCourse),
+      ),
+      body: Form(
+        key: _formKey,
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // ── Basic info ──
+              _sectionTitle(context, '基本信息'),
+              const SizedBox(height: 8),
+              TextFormField(
+                controller: _nameController,
+                decoration: const InputDecoration(
+                  labelText: '课程名称',
+                  border: OutlineInputBorder(),
+                ),
+                validator: (v) =>
+                    (v == null || v.trim().isEmpty) ? '请输入课程名称' : null,
+              ),
+              const SizedBox(height: 12),
+              TextFormField(
+                controller: _teacherController,
+                decoration: const InputDecoration(
+                  labelText: '授课教师',
+                  border: OutlineInputBorder(),
+                ),
+                validator: (v) =>
+                    (v == null || v.trim().isEmpty) ? '请输入授课教师' : null,
+              ),
+              const SizedBox(height: 12),
+              TextFormField(
+                controller: _locationController,
+                decoration: const InputDecoration(
+                  labelText: '上课地点（选填）',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+
+              const SizedBox(height: 24),
+
+              // ── Color ──
+              _sectionTitle(context, '课程颜色'),
+              const SizedBox(height: 8),
+              _buildColorPicker(colorScheme),
+
+              const SizedBox(height: 24),
+
+              // ── Time details ──
+              _sectionTitle(context, '时间设置'),
+              const SizedBox(height: 8),
+              for (int i = 0; i < _timeEntries.length; i++)
+                _buildTimeEntryCard(i, colorScheme),
+              const SizedBox(height: 8),
+              _buildAddTimeButton(colorScheme),
+
+              const SizedBox(height: 32),
+
+              // ── Save ──
+              SizedBox(
+                width: double.infinity,
+                height: 48,
+                child: FilledButton(
+                  onPressed: _saving ? null : _save,
+                  child: _saving
+                      ? const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.white,
+                          ),
+                        )
+                      : const Text('保存'),
+                ),
+              ),
+              const SizedBox(height: 32),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  // ---------------------------------------------------------------------------
+  // Section helpers
+  // ---------------------------------------------------------------------------
+
+  Widget _sectionTitle(BuildContext context, String title) {
+    final theme = Theme.of(context);
+    return Text(
+      title,
+      style: theme.textTheme.titleSmall?.copyWith(
+        color: theme.colorScheme.primary,
+        fontWeight: FontWeight.w600,
+      ),
+    );
+  }
+
+  // ---------------------------------------------------------------------------
+  // Color picker
+  // ---------------------------------------------------------------------------
+
+  Widget _buildColorPicker(ColorScheme colorScheme) {
+    return Wrap(
+      spacing: 12,
+      runSpacing: 8,
+      children: AppColors.presetCourseColors.map((color) {
+        final isSelected = _selectedColor == color;
+        return GestureDetector(
+          onTap: () => setState(() => _selectedColor = color),
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 200),
+            width: 32,
+            height: 32,
+            decoration: BoxDecoration(
+              color: Color(color),
+              shape: BoxShape.circle,
+              border: Border.all(color: Colors.white, width: 2),
+              boxShadow: isSelected
+                  ? [
+                      BoxShadow(
+                        color: Color(color).withValues(alpha: 0.4),
+                        blurRadius: 8,
+                        spreadRadius: 1,
+                      ),
+                    ]
+                  : null,
+            ),
+            child: isSelected
+                ? const Icon(Icons.check, size: 18, color: Colors.white)
+                : null,
+          ),
+        );
+      }).toList(),
+    );
+  }
+
+  // ---------------------------------------------------------------------------
+  // Time entry card
+  // ---------------------------------------------------------------------------
+
+  Widget _buildTimeEntryCard(int index, ColorScheme colorScheme) {
+    final entry = _timeEntries[index];
+    final textTheme = Theme.of(context).textTheme;
+
+    return Card(
+      elevation: 0,
+      margin: const EdgeInsets.only(bottom: 12),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(color: colorScheme.outlineVariant),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // ── Card header ──
+            Row(
+              children: [
+                Text(
+                  '时间段 ${index + 1}',
+                  style: textTheme.titleSmall
+                      ?.copyWith(fontWeight: FontWeight.w500),
+                ),
+                const Spacer(),
+                if (_timeEntries.length > 1)
+                  IconButton(
+                    icon: const Icon(Icons.delete_outline, size: 20),
+                    onPressed: () =>
+                        setState(() => _timeEntries.removeAt(index)),
+                    color: colorScheme.error,
+                    visualDensity: VisualDensity.compact,
+                  ),
+              ],
+            ),
+            const SizedBox(height: 12),
+
+            // ── Dropdowns: day / start period / duration ──
+            Row(
+              children: [
+                Expanded(
+                  child: DropdownButtonFormField<int>(
+                    initialValue: entry.dayOfWeek,
+                    isDense: true,
+                    decoration: const InputDecoration(
+                      labelText: '星期',
+                      border: OutlineInputBorder(),
+                      contentPadding:
+                          EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                    ),
+                    items: List.generate(
+                      7,
+                      (i) => DropdownMenuItem(
+                        value: i + 1,
+                        child: Text(_dayLabel(i + 1)),
+                      ),
+                    ),
+                    onChanged: (v) {
+                      if (v != null) setState(() => entry.dayOfWeek = v);
+                    },
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: DropdownButtonFormField<int>(
+                    initialValue: entry.startPeriod,
+                    isDense: true,
+                    decoration: const InputDecoration(
+                      labelText: '开始节次',
+                      border: OutlineInputBorder(),
+                      contentPadding:
+                          EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                    ),
+                    items: List.generate(
+                      12,
+                      (i) => DropdownMenuItem(
+                        value: i + 1,
+                        child: Text('第${i + 1}节'),
+                      ),
+                    ),
+                    onChanged: (v) {
+                      if (v != null) setState(() => entry.startPeriod = v);
+                    },
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: DropdownButtonFormField<int>(
+                    initialValue: entry.duration,
+                    isDense: true,
+                    decoration: const InputDecoration(
+                      labelText: '持续',
+                      border: OutlineInputBorder(),
+                      contentPadding:
+                          EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                    ),
+                    items: List.generate(
+                      3,
+                      (i) => DropdownMenuItem(
+                        value: i + 1,
+                        child: Text('${i + 1}节'),
+                      ),
+                    ),
+                    onChanged: (v) {
+                      if (v != null) setState(() => entry.duration = v);
+                    },
+                  ),
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 12),
+
+            // ── Quick week buttons ──
+            Row(
+              children: [
+                OutlinedButton(
+                  onPressed: () => setState(() {
+                    entry.selectedWeeks =
+                        Set<int>.from(List.generate(20, (i) => i + 1));
+                  }),
+                  style: OutlinedButton.styleFrom(
+                    visualDensity: VisualDensity.compact,
+                  ),
+                  child: const Text(AppStrings.allWeeks),
+                ),
+                const SizedBox(width: 8),
+                OutlinedButton(
+                  onPressed: () => setState(() {
+                    entry.selectedWeeks =
+                        Set<int>.from(List.generate(10, (i) => i * 2 + 1));
+                  }),
+                  style: OutlinedButton.styleFrom(
+                    visualDensity: VisualDensity.compact,
+                  ),
+                  child: const Text(AppStrings.singleWeek),
+                ),
+                const SizedBox(width: 8),
+                OutlinedButton(
+                  onPressed: () => setState(() {
+                    entry.selectedWeeks =
+                        Set<int>.from(List.generate(10, (i) => i * 2 + 2));
+                  }),
+                  style: OutlinedButton.styleFrom(
+                    visualDensity: VisualDensity.compact,
+                  ),
+                  child: const Text(AppStrings.doubleWeek),
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 8),
+
+            // ── Week checkboxes (20 weeks) ──
+            Wrap(
+              spacing: 2,
+              runSpacing: 4,
+              children: List.generate(20, (i) {
+                final week = i + 1;
+                final selected = entry.selectedWeeks.contains(week);
+                return SizedBox(
+                  width: 44,
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Checkbox(
+                        value: selected,
+                        onChanged: (v) {
+                          setState(() {
+                            if (v == true) {
+                              entry.selectedWeeks.add(week);
+                            } else {
+                              entry.selectedWeeks.remove(week);
+                            }
+                          });
+                        },
+                        materialTapTargetSize:
+                            MaterialTapTargetSize.shrinkWrap,
+                        visualDensity: VisualDensity.compact,
+                      ),
+                      Text('$week', style: textTheme.bodySmall),
+                    ],
+                  ),
+                );
+              }),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ---------------------------------------------------------------------------
+  // Add time button
+  // ---------------------------------------------------------------------------
+
+  Widget _buildAddTimeButton(ColorScheme colorScheme) {
+    return OutlinedButton.icon(
+      onPressed: () => setState(() => _timeEntries.add(_TimeEntryData())),
+      icon: const Icon(Icons.add, size: 18),
+      label: const Text('添加时间段'),
+    );
+  }
+}
