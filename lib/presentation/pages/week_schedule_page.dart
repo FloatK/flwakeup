@@ -26,7 +26,7 @@ class _WeekSchedulePageState extends ConsumerState<WeekSchedulePage> {
 
   static const int _totalPeriods = 12;
   static const double _periodHeight = 48.0;
-  static const double _periodLabelWidth = 80.0;
+  static const double _periodLabelWidth = 40.0;
   static const Color _gridBorderColor = Color(0xFFEEEEEE);
   static const List<String> _dayLabels = [
     AppStrings.mon,
@@ -55,12 +55,9 @@ class _WeekSchedulePageState extends ConsumerState<WeekSchedulePage> {
       return '${AppStrings.weekLabel}$displayedWeek${AppStrings.weekSuffix}';
     }
 
-    String buildDateLabel() {
-      if (semester == null) return '';
-      final start = DateTime.parse(semester.startDate);
-      final mon = start.add(Duration(days: (displayedWeek - 1) * 7));
-      final sun = mon.add(const Duration(days: 6));
-      return '${mon.month}月${mon.day}日-${sun.month}月${sun.day}日';
+    String _buildTodayDateLabel() {
+      final now = DateTime.now();
+      return '${now.month}月${now.day}日';
     }
 
     final isCurrentWeek = displayedWeek == currentWeek;
@@ -99,17 +96,16 @@ class _WeekSchedulePageState extends ConsumerState<WeekSchedulePage> {
 
     return Scaffold(
       appBar: AppBar(
+        leadingWidth: 90,
         leading: semester != null
             ? Padding(
                 padding: const EdgeInsets.only(left: 8),
-                child: FittedBox(
-                  fit: BoxFit.scaleDown,
-                  alignment: Alignment.centerLeft,
+                child: Center(
                   child: Text(
-                    buildDateLabel(),
+                    _buildTodayDateLabel(),
                     maxLines: 1,
                     style: const TextStyle(
-                      fontSize: 20,
+                      fontSize: 18,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
@@ -310,14 +306,15 @@ class _WeekSchedulePageState extends ConsumerState<WeekSchedulePage> {
       ),
       child: Row(
         children: [
-          Expanded(
+          SizedBox(
+            width: _periodLabelWidth,
             child: Container(
               height: 56,
               alignment: Alignment.center,
               child: Text(
                 '${weekStart.month}月',
                 style: TextStyle(
-                  fontSize: 13,
+                  fontSize: 11,
                   fontWeight: FontWeight.w600,
                   color: colorScheme.onSurfaceVariant,
                 ),

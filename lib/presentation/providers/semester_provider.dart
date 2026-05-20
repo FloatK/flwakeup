@@ -34,7 +34,7 @@ int currentWeek(CurrentWeekRef ref) {
       final now = DateTime.now();
       final diff = now.difference(startDate).inDays;
       if (diff < 0) return 1;
-      final week = (diff / 7).ceil() + 1;
+      final week = diff ~/ 7 + 1;
       return week.clamp(1, semester.totalWeeks);
     },
     loading: () => 1,
