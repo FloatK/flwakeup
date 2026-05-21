@@ -5,6 +5,7 @@ import 'package:uuid/uuid.dart';
 
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_strings.dart';
+import '../../core/utils/ui_utils.dart';
 import '../../data/models/course.dart';
 import '../providers/course_provider.dart';
 
@@ -92,9 +93,6 @@ class _AddEditCoursePageState extends ConsumerState<AddEditCoursePage> {
     super.dispose();
   }
 
-  String _dayLabel(int day) =>
-      ['周一', '周二', '周三', '周四', '周五', '周六', '周日'][day - 1];
-
   // ---------------------------------------------------------------------------
   // Save
   // ---------------------------------------------------------------------------
@@ -105,9 +103,7 @@ class _AddEditCoursePageState extends ConsumerState<AddEditCoursePage> {
     // Each time entry must have at least one week selected
     for (int i = 0; i < _timeEntries.length; i++) {
       if (_timeEntries[i].selectedWeeks.isEmpty) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('时间段 ${i + 1} 请选择上课周次')),
-        );
+        showAppSnackBar(context, AppStrings.selectWeeksHint(i + 1), isError: true);
         return;
       }
     }
@@ -143,16 +139,12 @@ class _AddEditCoursePageState extends ConsumerState<AddEditCoursePage> {
       }
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(_isEditing ? '课程已更新' : '课程已添加')),
-        );
+        showAppSnackBar(context, _isEditing ? AppStrings.courseUpdated : AppStrings.courseAdded);
         context.pop();
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('保存失败: $e')),
-        );
+        showAppSnackBar(context, '${AppStrings.saveFailed}: $e', isError: true);
       }
     } finally {
       if (mounted) setState(() => _saving = false);
@@ -198,32 +190,32 @@ class _AddEditCoursePageState extends ConsumerState<AddEditCoursePage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // ── Basic info ──
-              _sectionTitle(context, '基本信息'),
+              _sectionTitle(context, AppStrings.basicInfo),
               const SizedBox(height: 8),
               TextFormField(
                 controller: _nameController,
                 decoration: const InputDecoration(
-                  labelText: '课程名称',
+                  labelText: AppStrings.courseName,
                   border: OutlineInputBorder(),
                 ),
                 validator: (v) =>
-                    (v == null || v.trim().isEmpty) ? '请输入课程名称' : null,
+                    (v == null || v.trim().isEmpty) ? AppStrings.enterCourseName : null,
               ),
               const SizedBox(height: 12),
               TextFormField(
                 controller: _teacherController,
                 decoration: const InputDecoration(
-                  labelText: '授课教师',
+                  labelText: AppStrings.teacher,
                   border: OutlineInputBorder(),
                 ),
                 validator: (v) =>
-                    (v == null || v.trim().isEmpty) ? '请输入授课教师' : null,
+                    (v == null || v.trim().isEmpty) ? AppStrings.enterTeacher : null,
               ),
               const SizedBox(height: 12),
               TextFormField(
                 controller: _locationController,
                 decoration: const InputDecoration(
-                  labelText: '上课地点（选填）',
+                  labelText: AppStrings.locationOptional,
                   border: OutlineInputBorder(),
                 ),
               ),
@@ -231,14 +223,14 @@ class _AddEditCoursePageState extends ConsumerState<AddEditCoursePage> {
               const SizedBox(height: 24),
 
               // ── Color ──
-              _sectionTitle(context, '课程颜色'),
+              _sectionTitle(context, AppStrings.courseColor),
               const SizedBox(height: 8),
               _buildColorPicker(colorScheme),
 
               const SizedBox(height: 24),
 
               // ── Time details ──
-              _sectionTitle(context, '时间设置'),
+              _sectionTitle(context, AppStrings.timeSettings),
               const SizedBox(height: 8),
               for (int i = 0; i < _timeEntries.length; i++)
                 _buildTimeEntryCard(i, colorScheme),
@@ -262,7 +254,7 @@ class _AddEditCoursePageState extends ConsumerState<AddEditCoursePage> {
                             color: Colors.white,
                           ),
                         )
-                      : const Text('保存'),
+                      : const Text(AppStrings.save),
                 ),
               ),
               const SizedBox(height: 32),
@@ -351,7 +343,7 @@ class _AddEditCoursePageState extends ConsumerState<AddEditCoursePage> {
             Row(
               children: [
                 Text(
-                  '时间段 ${index + 1}',
+                  AppStrings.timeSlotLabel(index + 1),
                   style: textTheme.titleSmall
                       ?.copyWith(fontWeight: FontWeight.w500),
                 ),
@@ -376,7 +368,7 @@ class _AddEditCoursePageState extends ConsumerState<AddEditCoursePage> {
                     initialValue: entry.dayOfWeek,
                     isDense: true,
                     decoration: const InputDecoration(
-                      labelText: '星期',
+                      labelText: AppStrings.weekday,
                       border: OutlineInputBorder(),
                       contentPadding:
                           EdgeInsets.symmetric(horizontal: 12, vertical: 12),
@@ -385,7 +377,7 @@ class _AddEditCoursePageState extends ConsumerState<AddEditCoursePage> {
                       7,
                       (i) => DropdownMenuItem(
                         value: i + 1,
-                        child: Text(_dayLabel(i + 1)),
+                        child: Text(AppStrings.dayLabel(i + 1)),
                       ),
                     ),
                     onChanged: (v) {
@@ -399,7 +391,7 @@ class _AddEditCoursePageState extends ConsumerState<AddEditCoursePage> {
                     initialValue: entry.startPeriod,
                     isDense: true,
                     decoration: const InputDecoration(
-                      labelText: '开始节次',
+                      labelText: AppStrings.startPeriod,
                       border: OutlineInputBorder(),
                       contentPadding:
                           EdgeInsets.symmetric(horizontal: 12, vertical: 12),
@@ -408,7 +400,7 @@ class _AddEditCoursePageState extends ConsumerState<AddEditCoursePage> {
                       12,
                       (i) => DropdownMenuItem(
                         value: i + 1,
-                        child: Text('第${i + 1}节'),
+                        child: Text(AppStrings.periodLabel(i + 1)),
                       ),
                     ),
                     onChanged: (v) {
@@ -422,7 +414,7 @@ class _AddEditCoursePageState extends ConsumerState<AddEditCoursePage> {
                     initialValue: entry.duration,
                     isDense: true,
                     decoration: const InputDecoration(
-                      labelText: '持续',
+                      labelText: AppStrings.duration,
                       border: OutlineInputBorder(),
                       contentPadding:
                           EdgeInsets.symmetric(horizontal: 12, vertical: 12),
@@ -431,7 +423,7 @@ class _AddEditCoursePageState extends ConsumerState<AddEditCoursePage> {
                       3,
                       (i) => DropdownMenuItem(
                         value: i + 1,
-                        child: Text('${i + 1}节'),
+                        child: Text(AppStrings.durationLabel(i + 1)),
                       ),
                     ),
                     onChanged: (v) {
@@ -526,7 +518,7 @@ class _AddEditCoursePageState extends ConsumerState<AddEditCoursePage> {
     return OutlinedButton.icon(
       onPressed: () => setState(() => _timeEntries.add(_TimeEntryData())),
       icon: const Icon(Icons.add, size: 18),
-      label: const Text('添加时间段'),
+      label: const Text(AppStrings.addTimeSlot),
     );
   }
 }

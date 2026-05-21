@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:drift/drift.dart' as drift;
 
+import '../../core/utils/week_utils.dart';
 import '../../domain/repositories/course_repository.dart';
 import '../datasources/database.dart' hide Course, TimeDetail;
 import '../models/course.dart';
@@ -85,7 +86,7 @@ class CourseRepositoryImpl implements CourseRepository {
             dayOfWeek: td.dayOfWeek,
             startPeriod: td.startPeriod,
             duration: td.duration,
-            weeks: _parseWeeks(td.weeks),
+            weeks: WeekUtils.parseWeeks(td.weeks),
             singleOrDouble: td.singleOrDouble,
           );
         }).toList(),
@@ -106,10 +107,6 @@ class CourseRepositoryImpl implements CourseRepository {
     }).toList();
   }
 
-  List<int> _parseWeeks(String weeksStr) {
-    if (weeksStr.isEmpty) return [];
-    return weeksStr.split(',').map(int.parse).toList();
-  }
 }
 
 class CourseRepositoryException implements Exception {

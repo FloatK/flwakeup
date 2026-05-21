@@ -26,100 +26,18 @@ class _ThemeSettingsDialogState extends ConsumerState<ThemeSettingsDialog> {
     _colorIndex = settings.colorIndex;
   }
 
-  ThemeSettings _current() => ref.read(themeSettingsProvider);
-
   Future<void> _applySettings() async {
-    final s = _current();
-    final newSettings = ThemeSettings(
-      followSystem: _followSystem,
-      brightness: _brightness,
-      colorIndex: _colorIndex,
-      cornerRadius: s.cornerRadius,
-      blockHeight: s.blockHeight,
-      courseSpacing: s.courseSpacing,
-      horizontalSpacing: s.horizontalSpacing,
-      colorLightness: s.colorLightness,
-    );
-    ref.read(themeSettingsProvider.notifier).state = newSettings;
-    await saveThemeSettings(newSettings);
-  }
-
-  Future<void> _updateCornerRadius(double v) async {
-    final s = _current();
-    final updated = ThemeSettings(
-      followSystem: _followSystem,
-      brightness: _brightness,
-      colorIndex: _colorIndex,
-      cornerRadius: v,
-      blockHeight: s.blockHeight,
-      courseSpacing: s.courseSpacing,
-      horizontalSpacing: s.horizontalSpacing,
-      colorLightness: s.colorLightness,
-    );
+    final updated = ref.read(themeSettingsProvider).copyWith(
+          followSystem: _followSystem,
+          brightness: _brightness,
+          colorIndex: _colorIndex,
+        );
     ref.read(themeSettingsProvider.notifier).state = updated;
     await saveThemeSettings(updated);
   }
 
-  Future<void> _updateBlockHeight(double v) async {
-    final s = _current();
-    final updated = ThemeSettings(
-      followSystem: _followSystem,
-      brightness: _brightness,
-      colorIndex: _colorIndex,
-      cornerRadius: s.cornerRadius,
-      blockHeight: v,
-      courseSpacing: s.courseSpacing,
-      horizontalSpacing: s.horizontalSpacing,
-      colorLightness: s.colorLightness,
-    );
-    ref.read(themeSettingsProvider.notifier).state = updated;
-    await saveThemeSettings(updated);
-  }
-
-  Future<void> _updateCourseSpacing(double v) async {
-    final s = _current();
-    final updated = ThemeSettings(
-      followSystem: _followSystem,
-      brightness: _brightness,
-      colorIndex: _colorIndex,
-      cornerRadius: s.cornerRadius,
-      blockHeight: s.blockHeight,
-      courseSpacing: v,
-      horizontalSpacing: s.horizontalSpacing,
-      colorLightness: s.colorLightness,
-    );
-    ref.read(themeSettingsProvider.notifier).state = updated;
-    await saveThemeSettings(updated);
-  }
-
-  Future<void> _updateHorizontalSpacing(double v) async {
-    final s = _current();
-    final updated = ThemeSettings(
-      followSystem: _followSystem,
-      brightness: _brightness,
-      colorIndex: _colorIndex,
-      cornerRadius: s.cornerRadius,
-      blockHeight: s.blockHeight,
-      courseSpacing: s.courseSpacing,
-      horizontalSpacing: v,
-      colorLightness: s.colorLightness,
-    );
-    ref.read(themeSettingsProvider.notifier).state = updated;
-    await saveThemeSettings(updated);
-  }
-
-  Future<void> _updateColorLightness(double v) async {
-    final s = _current();
-    final updated = ThemeSettings(
-      followSystem: _followSystem,
-      brightness: _brightness,
-      colorIndex: _colorIndex,
-      cornerRadius: s.cornerRadius,
-      blockHeight: s.blockHeight,
-      courseSpacing: s.courseSpacing,
-      horizontalSpacing: s.horizontalSpacing,
-      colorLightness: v,
-    );
+  Future<void> _updateAndSave(ThemeSettings Function(ThemeSettings) updater) async {
+    final updated = updater(ref.read(themeSettingsProvider));
     ref.read(themeSettingsProvider.notifier).state = updated;
     await saveThemeSettings(updated);
   }
@@ -214,7 +132,7 @@ class _ThemeSettingsDialogState extends ConsumerState<ThemeSettingsDialog> {
                     label: '${settings.cornerRadius.round()}px',
                     onChanged: (v) {
                       setState(() => _draggingSlider = 'cornerRadius');
-                      _updateCornerRadius(v);
+                      _updateAndSave((s) => s.copyWith(cornerRadius: v));
                     },
                     onChangeEnd: (_) => setState(() => _draggingSlider = null),
                   ),
@@ -255,7 +173,7 @@ class _ThemeSettingsDialogState extends ConsumerState<ThemeSettingsDialog> {
                     label: '${settings.blockHeight.round()}px',
                     onChanged: (v) {
                       setState(() => _draggingSlider = 'blockHeight');
-                      _updateBlockHeight(v);
+                      _updateAndSave((s) => s.copyWith(blockHeight: v));
                     },
                     onChangeEnd: (_) => setState(() => _draggingSlider = null),
                   ),
@@ -296,7 +214,7 @@ class _ThemeSettingsDialogState extends ConsumerState<ThemeSettingsDialog> {
                     label: '${settings.courseSpacing.round()}px',
                     onChanged: (v) {
                       setState(() => _draggingSlider = 'courseSpacing');
-                      _updateCourseSpacing(v);
+                      _updateAndSave((s) => s.copyWith(courseSpacing: v));
                     },
                     onChangeEnd: (_) => setState(() => _draggingSlider = null),
                   ),
@@ -337,7 +255,7 @@ class _ThemeSettingsDialogState extends ConsumerState<ThemeSettingsDialog> {
                     label: '${settings.horizontalSpacing.round()}px',
                     onChanged: (v) {
                       setState(() => _draggingSlider = 'horizontalSpacing');
-                      _updateHorizontalSpacing(v);
+                      _updateAndSave((s) => s.copyWith(horizontalSpacing: v));
                     },
                     onChangeEnd: (_) => setState(() => _draggingSlider = null),
                   ),
@@ -363,7 +281,7 @@ class _ThemeSettingsDialogState extends ConsumerState<ThemeSettingsDialog> {
                     label: '${settings.colorLightness.toStringAsFixed(1)}x',
                     onChanged: (v) {
                       setState(() => _draggingSlider = 'colorLightness');
-                      _updateColorLightness(v);
+                      _updateAndSave((s) => s.copyWith(colorLightness: v));
                     },
                     onChangeEnd: (_) => setState(() => _draggingSlider = null),
                   ),

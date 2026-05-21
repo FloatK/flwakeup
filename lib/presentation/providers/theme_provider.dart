@@ -23,6 +23,28 @@ class ThemeSettings {
     this.colorLightness = 1.2,
   });
 
+  ThemeSettings copyWith({
+    bool? followSystem,
+    Brightness? brightness,
+    int? colorIndex,
+    double? cornerRadius,
+    double? blockHeight,
+    double? courseSpacing,
+    double? horizontalSpacing,
+    double? colorLightness,
+  }) {
+    return ThemeSettings(
+      followSystem: followSystem ?? this.followSystem,
+      brightness: brightness ?? this.brightness,
+      colorIndex: colorIndex ?? this.colorIndex,
+      cornerRadius: cornerRadius ?? this.cornerRadius,
+      blockHeight: blockHeight ?? this.blockHeight,
+      courseSpacing: courseSpacing ?? this.courseSpacing,
+      horizontalSpacing: horizontalSpacing ?? this.horizontalSpacing,
+      colorLightness: colorLightness ?? this.colorLightness,
+    );
+  }
+
   static const List<Color> presetThemeColors = [
     Color(0xFF1565C0), // 蓝色
     Color(0xFFD32F2F), // 红色

@@ -1,6 +1,7 @@
 import 'package:html/parser.dart' as html_parser;
 import 'package:html/dom.dart' as dom;
 
+import '../../core/utils/week_utils.dart';
 import 'edu_parser.dart';
 
 /// Parser for 强智教务系统 schedule tables.
@@ -167,38 +168,14 @@ class QiangZhiEduParser extends EduParser {
   }
 
   static List<int> _parseWeeks(String weeksStr) {
-    final numbers = <int>{};
-
     // Extract only the weeks portion: everything before '(' or '['
     final match = RegExp(r'^([^(\[]+)').firstMatch(weeksStr);
     final weeksOnly =
         (match?.group(1) ?? weeksStr).replaceAll(RegExp(r'[周单双全\s]'), '');
-
-    if (weeksOnly.isEmpty) return [];
-
-    final parts = weeksOnly.split(',').map((s) => s.trim());
-    for (final part in parts) {
-      if (part.isEmpty) continue;
-      if (part.contains('-')) {
-        final range = part.split('-');
-        final start = int.tryParse(range[0]);
-        final end = int.tryParse(range[1]);
-        if (start != null && end != null && start <= end) {
-          for (int i = start; i <= end; i++) {
-            numbers.add(i);
-          }
-        }
-      } else {
-        final n = int.tryParse(part);
-        if (n != null) numbers.add(n);
-      }
-    }
-    return numbers.toList()..sort();
+    return WeekUtils.parseWeeks(weeksOnly);
   }
 
   static String _parseSingleOrDouble(String weeksStr) {
-    if (weeksStr.contains('单')) return 'single';
-    if (weeksStr.contains('双')) return 'double';
-    return 'all';
+    return WeekUtils.parseSingleOrDouble(weeksStr);
   }
 }

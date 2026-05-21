@@ -2,6 +2,8 @@ import 'package:drift/drift.dart' as drift;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../core/constants/app_strings.dart';
+import '../../core/utils/ui_utils.dart';
 import '../../data/datasources/database.dart' hide Schedule;
 import '../../data/models/schedule.dart';
 import '../providers/schedule_provider.dart';
@@ -55,19 +57,15 @@ class _ScheduleEditPageState extends ConsumerState<ScheduleEditPage> {
     super.dispose();
   }
 
-  static const List<String> _dayLabels = [
-    '周一', '周二', '周三', '周四', '周五', '周六', '周日'
-  ];
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('编辑课表'),
+        title: const Text(AppStrings.editSchedule),
         actions: [
           TextButton(
             onPressed: _save,
-            child: const Text('保存'),
+            child: const Text(AppStrings.save),
           ),
         ],
       ),
@@ -78,13 +76,13 @@ class _ScheduleEditPageState extends ConsumerState<ScheduleEditPage> {
           TextField(
             controller: _nameController,
             decoration: const InputDecoration(
-              labelText: '课表名称',
+              labelText: AppStrings.scheduleName,
               border: OutlineInputBorder(),
             ),
           ),
           const SizedBox(height: 24),
           Text(
-            '一天最多课程数 (${_maxCoursesPerDay}节)',
+            AppStrings.maxCoursesLabel(_maxCoursesPerDay),
             style: Theme.of(context).textTheme.titleSmall,
           ),
           Slider(
@@ -97,7 +95,7 @@ class _ScheduleEditPageState extends ConsumerState<ScheduleEditPage> {
           ),
           const SizedBox(height: 24),
           Text(
-            '每周显示的天数',
+            AppStrings.displayedWeekdays,
             style: Theme.of(context).textTheme.titleSmall,
           ),
           const SizedBox(height: 8),
@@ -108,7 +106,7 @@ class _ScheduleEditPageState extends ConsumerState<ScheduleEditPage> {
               final day = i + 1;
               final selected = _selectedWeekdays.contains(day);
               return FilterChip(
-                label: Text(_dayLabels[i]),
+                label: Text(AppStrings.dayLabels[i]),
                 selected: selected,
                 onSelected: (v) {
                   setState(() {
@@ -129,7 +127,7 @@ class _ScheduleEditPageState extends ConsumerState<ScheduleEditPage> {
           const Divider(height: 1),
           const SizedBox(height: 16),
           Text(
-            '学期设置',
+            AppStrings.semesterSettingsLabel,
             style: Theme.of(context).textTheme.titleMedium?.copyWith(
                   fontWeight: FontWeight.w600,
                 ),
@@ -139,7 +137,7 @@ class _ScheduleEditPageState extends ConsumerState<ScheduleEditPage> {
           TextField(
             controller: _startDateController,
             decoration: const InputDecoration(
-              labelText: '开学日期',
+              labelText: AppStrings.startDate,
               hintText: 'YYYY-MM-DD',
               border: OutlineInputBorder(),
             ),
@@ -161,7 +159,7 @@ class _ScheduleEditPageState extends ConsumerState<ScheduleEditPage> {
           TextField(
             controller: _totalWeeksController,
             decoration: const InputDecoration(
-              labelText: '总周数',
+              labelText: AppStrings.totalWeeks,
               border: OutlineInputBorder(),
             ),
             keyboardType: TextInputType.number,
@@ -176,32 +174,24 @@ class _ScheduleEditPageState extends ConsumerState<ScheduleEditPage> {
     // Validate schedule fields
     final name = _nameController.text.trim();
     if (name.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('请输入课表名称')),
-      );
+      showAppSnackBar(context, AppStrings.enterScheduleName, isError: true);
       return;
     }
 
     final totalWeeksStr = _totalWeeksController.text.trim();
     if (totalWeeksStr.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('请输入总周数')),
-      );
+      showAppSnackBar(context, AppStrings.enterTotalWeeks, isError: true);
       return;
     }
     final totalWeeks = int.tryParse(totalWeeksStr);
     if (totalWeeks == null || totalWeeks < 1 || totalWeeks > 30) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('总周数请输入1-30之间的数字')),
-      );
+      showAppSnackBar(context, AppStrings.totalWeeksRange, isError: true);
       return;
     }
 
     final startDateStr = _startDateController.text.trim();
     if (startDateStr.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('请选择开学日期')),
-      );
+      showAppSnackBar(context, AppStrings.selectStartDate, isError: true);
       return;
     }
 
@@ -231,9 +221,7 @@ class _ScheduleEditPageState extends ConsumerState<ScheduleEditPage> {
       if (context.mounted) Navigator.pop(context, true);
     } catch (e) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('保存失败: $e')),
-        );
+        showAppSnackBar(context, '${AppStrings.saveFailed}: $e', isError: true);
       }
     }
   }
