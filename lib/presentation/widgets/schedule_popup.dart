@@ -254,78 +254,86 @@ class _AppBarConfigDialogState extends State<_AppBarConfigDialog> {
       title: const Text('配置 AppBar 按钮'),
       content: SizedBox(
         width: double.maxFinite,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              '选择要在顶栏显示的按钮（最多 ${ActionItem.maxAppBarItems} 个）',
-              style: Theme.of(context).textTheme.bodySmall,
-            ),
-            const SizedBox(height: 8),
-            ...ActionItem.values.map((item) {
-              final checked = _selected.contains(item);
-              return CheckboxListTile(
-                value: checked,
-                title: Row(
-                  children: [
-                    Icon(item.icon, size: 20),
-                    const SizedBox(width: 8),
-                    Flexible(
-                      child: Text(
-                        item.displayName,
-                        overflow: TextOverflow.ellipsis,
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                '选择要在顶栏显示的按钮（最多 ${ActionItem.maxAppBarItems} 个）',
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+              const SizedBox(height: 8),
+              ...ActionItem.values.map((item) {
+                final checked = _selected.contains(item);
+                return CheckboxListTile(
+                  value: checked,
+                  title: Row(
+                    children: [
+                      Icon(item.icon, size: 20),
+                      const SizedBox(width: 8),
+                      Flexible(
+                        child: Text(
+                          item.displayName,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-                onChanged: (v) {
-                  setState(() {
-                    if (v == true) {
-                      if (_selected.length >= ActionItem.maxAppBarItems) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(
-                              '最多选择 ${ActionItem.maxAppBarItems} 个',
+                    ],
+                  ),
+                  onChanged: (v) {
+                    setState(() {
+                      if (v == true) {
+                        if (_selected.length >= ActionItem.maxAppBarItems) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                '最多选择 ${ActionItem.maxAppBarItems} 个',
+                              ),
                             ),
-                          ),
-                        );
-                        return;
+                          );
+                          return;
+                        }
+                        _selected.add(item);
+                      } else {
+                        _selected.remove(item);
                       }
-                      _selected.add(item);
-                    } else {
-                      _selected.remove(item);
-                    }
-                  });
-                },
-                controlAffinity: ListTileControlAffinity.trailing,
-                dense: true,
-              );
-            }),
-          ],
+                    });
+                  },
+                  controlAffinity: ListTileControlAffinity.trailing,
+                  dense: true,
+                );
+              }),
+            ],
+          ),
         ),
       ),
       actions: [
-        TextButton(
-          onPressed: () {
-            const defaults = [
-              ActionItem.importTimetable,
-              ActionItem.exportTimetable,
-            ];
-            setState(() => _selected = List.from(defaults));
-            AppBarConfig.resetToDefault();
-          },
-          child: const Text('重置默认'),
-        ),
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: const Text('取消'),
-        ),
-        ElevatedButton(
-          onPressed: () {
-            widget.onSaved(_selected);
-            Navigator.pop(context);
-          },
-          child: const Text('确认'),
+        Row(
+          children: [
+            TextButton(
+              onPressed: () {
+                const defaults = [
+                  ActionItem.importTimetable,
+                  ActionItem.exportTimetable,
+                ];
+                setState(() => _selected = List.from(defaults));
+                AppBarConfig.resetToDefault();
+              },
+              child: const Text('重置默认'),
+            ),
+            const Spacer(),
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('取消'),
+            ),
+            const SizedBox(width: 8),
+            ElevatedButton(
+              onPressed: () {
+                widget.onSaved(_selected);
+                Navigator.pop(context);
+              },
+              child: const Text('确认'),
+            ),
+          ],
         ),
       ],
     );

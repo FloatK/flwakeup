@@ -7,6 +7,7 @@ import 'presentation/pages/add_edit_course_page.dart';
 import 'presentation/pages/import_schedule_page.dart';
 import 'presentation/pages/schedule_list_page.dart';
 import 'presentation/pages/week_schedule_page.dart';
+import 'presentation/providers/theme_provider.dart';
 
 final _router = GoRouter(
   initialLocation: '/',
@@ -42,10 +43,19 @@ class App extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final settings = ref.watch(themeSettingsProvider);
+
+    final colorIndex = settings.colorIndex;
     return MaterialApp.router(
       routerConfig: _router,
       debugShowCheckedModeBanner: false,
-      theme: lightTheme(),
+      theme: buildTheme(colorIndex, Brightness.light),
+      darkTheme: buildTheme(colorIndex, Brightness.dark),
+      themeMode: settings.followSystem
+          ? ThemeMode.system
+          : settings.brightness == Brightness.dark
+              ? ThemeMode.dark
+              : ThemeMode.light,
       title: 'WakeUp 课程表',
     );
   }

@@ -15,6 +15,7 @@ import 'data/repositories/schedule_repository_impl.dart';
 import 'presentation/providers/course_provider.dart';
 import 'presentation/providers/schedule_provider.dart';
 import 'presentation/providers/semester_provider.dart';
+import 'presentation/providers/theme_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -24,8 +25,9 @@ void main() async {
   final db = AppDatabase(NativeDatabase(File(dbPath)));
 
   await _initSampleData(db);
-
   await _ensureDefaultSchedule(db);
+
+  final themeSettings = await loadThemeSettings();
 
   runApp(
     ProviderScope(
@@ -34,6 +36,7 @@ void main() async {
         courseRepositoryProvider.overrideWithValue(CourseRepositoryImpl(db)),
         scheduleRepositoryProvider
             .overrideWithValue(ScheduleRepositoryImpl(db)),
+        themeSettingsProvider.overrideWith((ref) => themeSettings),
       ],
       child: const App(),
     ),

@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 
-ThemeData lightTheme() {
+import '../../presentation/providers/theme_provider.dart';
+
+ThemeData buildTheme(int colorIndex, Brightness brightness) {
   final colorScheme = ColorScheme.fromSeed(
-    seedColor: Colors.blue,
-    brightness: Brightness.light,
+    seedColor: ThemeSettings.presetThemeColors[colorIndex % ThemeSettings.presetThemeColors.length],
+    brightness: brightness,
   );
 
   return ThemeData(

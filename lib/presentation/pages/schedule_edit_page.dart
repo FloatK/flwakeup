@@ -205,24 +205,26 @@ class _ScheduleEditPageState extends ConsumerState<ScheduleEditPage> {
       return;
     }
 
-    // Save schedule
-    final sortedWeekdays = _selectedWeekdays.toList()..sort();
-    final updated = widget.schedule.copyWith(
-      name: name,
-      maxCoursesPerDay: _maxCoursesPerDay,
-      displayedWeekdays: sortedWeekdays,
-    );
+      // Save schedule
+      final sortedWeekdays = _selectedWeekdays.toList()..sort();
+      final updated = widget.schedule.copyWith(
+        name: name,
+        maxCoursesPerDay: _maxCoursesPerDay,
+        displayedWeekdays: sortedWeekdays,
+      );
 
-    try {
-      await ref.read(scheduleRepositoryProvider).updateSchedule(updated);
+      try {
+        await ref.read(scheduleRepositoryProvider).updateSchedule(updated);
 
-      // Save semester config
-      await ref.read(activeSemesterProvider.notifier).setConfig(
-            SemesterConfigsCompanion(
-              startDate: drift.Value('${startDateStr}T00:00:00'),
-              totalWeeks: drift.Value(totalWeeks),
-            ),
-          );
+        // Save semester config — must include name (non-nullable column)
+        final currentSemester = await ref.read(activeSemesterProvider.future);
+        await ref.read(activeSemesterProvider.notifier).setConfig(
+              SemesterConfigsCompanion(
+                name: drift.Value(currentSemester?.name ?? '默认学期'),
+                startDate: drift.Value('${startDateStr}T00:00:00'),
+                totalWeeks: drift.Value(totalWeeks),
+              ),
+            );
 
       ref.invalidate(scheduleListProvider);
       ref.invalidate(currentScheduleProvider);

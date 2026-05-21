@@ -9,7 +9,8 @@ enum ActionItem {
   goToCurrentWeek,
   selectTimetable,
   clearCache,
-  about;
+  about,
+  themeSettings;
 
   String get displayName {
     switch (this) {
@@ -31,6 +32,8 @@ enum ActionItem {
         return '清除缓存';
       case ActionItem.about:
         return '关于';
+      case ActionItem.themeSettings:
+        return '主题';
     }
   }
 
@@ -54,6 +57,8 @@ enum ActionItem {
         return Icons.cleaning_services_outlined;
       case ActionItem.about:
         return Icons.info_outline;
+      case ActionItem.themeSettings:
+        return Icons.palette;
     }
   }
 

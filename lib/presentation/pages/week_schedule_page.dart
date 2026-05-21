@@ -14,7 +14,9 @@ import '../../data/models/schedule.dart';
 import '../providers/course_provider.dart';
 import '../providers/schedule_provider.dart';
 import '../providers/semester_provider.dart';
+import '../providers/theme_provider.dart';
 import '../widgets/schedule_popup.dart';
+import '../widgets/theme_settings_dialog.dart';
 
 class WeekSchedulePage extends ConsumerStatefulWidget {
   const WeekSchedulePage({super.key});
@@ -43,9 +45,7 @@ class _WeekSchedulePageState extends ConsumerState<WeekSchedulePage> {
   }
 
   int _periodCount(Schedule? schedule) => schedule?.maxCoursesPerDay ?? 12;
-  static const double _periodHeight = 48.0;
   static const double _periodLabelWidth = 40.0;
-  static const Color _gridBorderColor = Color(0xFFEEEEEE);
   static const List<String> _dayLabels = [
     AppStrings.mon,
     AppStrings.tue,
@@ -257,14 +257,7 @@ class _WeekSchedulePageState extends ConsumerState<WeekSchedulePage> {
   Widget _buildCombinedHeader(DateTime weekStart, DateTime todayStart) {
     final colorScheme = Theme.of(context).colorScheme;
     final displayedDays = _getDisplayedWeekdays();
-    return Container(
-      decoration: BoxDecoration(
-        border: Border(
-          top: BorderSide(color: _gridBorderColor, width: 1),
-          bottom: BorderSide(color: _gridBorderColor, width: 1),
-        ),
-      ),
-      child: Row(
+    return Row(
         children: [
           SizedBox(
             width: _periodLabelWidth,
@@ -290,11 +283,6 @@ class _WeekSchedulePageState extends ConsumerState<WeekSchedulePage> {
             return Expanded(
               child: Container(
                 height: 56,
-                decoration: BoxDecoration(
-                  border: Border(
-                    left: BorderSide(color: _gridBorderColor, width: 1),
-                  ),
-                ),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -332,8 +320,7 @@ class _WeekSchedulePageState extends ConsumerState<WeekSchedulePage> {
             );
           }),
         ],
-      ),
-    );
+      );
   }
 
   Widget _buildGridBody(List<Course> courses, int displayedWeek,
@@ -349,13 +336,8 @@ class _WeekSchedulePageState extends ConsumerState<WeekSchedulePage> {
             children: List.generate(
               periodCount,
               (index) => Container(
-                height: _periodHeight,
+                height: ref.watch(themeSettingsProvider).blockHeight,
                 alignment: Alignment.center,
-                decoration: const BoxDecoration(
-                  border: Border(
-                    bottom: BorderSide(color: _gridBorderColor, width: 0.5),
-                  ),
-                ),
                 child: Text(
                   '${index + 1}',
                   style: const TextStyle(fontSize: 12, color: Colors.grey),
@@ -389,40 +371,22 @@ class _WeekSchedulePageState extends ConsumerState<WeekSchedulePage> {
   }) {
     final slots = _getActiveSlotsForDay(dayOfWeek, courses, displayedWeek);
 
+    final blockHeight = ref.watch(themeSettingsProvider).blockHeight;
+
     return SizedBox(
-      height: periodCount * _periodHeight,
+      height: periodCount * blockHeight,
       child: Stack(
         clipBehavior: Clip.none,
         children: [
-          // Grid cell backgrounds
-          ...List.generate(
-            periodCount,
-            (index) => Positioned(
-              top: index * _periodHeight,
+          // Course blocks — no grid lines, tightly packed
+          ...slots.map((slot) {
+            final top = (slot.timeDetail.startPeriod - 1) * blockHeight;
+            final height = slot.timeDetail.duration * blockHeight;
+            return Positioned(
+              top: top,
               left: 0,
               right: 0,
-              height: _periodHeight,
-              child: Container(
-                decoration: const BoxDecoration(
-                  border: Border(
-                    bottom:
-                        BorderSide(color: _gridBorderColor, width: 0.5),
-                    right:
-                        BorderSide(color: _gridBorderColor, width: 0.5),
-                  ),
-                ),
-              ),
-            ),
-          ),
-          // Course blocks
-          ...slots.map((slot) {
-            final top = (slot.timeDetail.startPeriod - 1) * _periodHeight;
-            final height = slot.timeDetail.duration * _periodHeight;
-            return Positioned(
-              top: top + 1,
-              left: 1,
-              right: 1,
-              height: height - 2,
+              height: height,
               child: _buildCourseBlock(slot.course),
             );
           }),
@@ -459,17 +423,20 @@ class _WeekSchedulePageState extends ConsumerState<WeekSchedulePage> {
   Widget _buildCourseBlock(Course course) {
     final courseColor =
         course.color != 0 ? Color(course.color) : Color(AppColors.presetCourseColors[0]);
+    final radius = ref.watch(themeSettingsProvider).cornerRadius;
 
     return GestureDetector(
       onTap: () => _showCourseDetailSheet(course),
       child: Container(
+        clipBehavior: Clip.hardEdge,
         decoration: BoxDecoration(
           color: courseColor,
-          borderRadius: BorderRadius.circular(4),
+          borderRadius: BorderRadius.circular(radius),
         ),
-        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 3),
+        padding: const EdgeInsets.all(4),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
           children: [
             Text(
               course.name,
@@ -478,18 +445,19 @@ class _WeekSchedulePageState extends ConsumerState<WeekSchedulePage> {
                 fontSize: 11,
                 fontWeight: FontWeight.bold,
               ),
-              maxLines: 2,
+              maxLines: 100,
               overflow: TextOverflow.ellipsis,
             ),
-            if (course.location != null && course.location!.isNotEmpty) ...[
-              const SizedBox(height: 1),
-              Text(
-                course.location!,
-                style: const TextStyle(color: Colors.white70, fontSize: 9),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
+            if (course.location != null && course.location!.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.only(top: 1),
+                child: Text(
+                  course.location!,
+                  style: const TextStyle(color: Colors.white70, fontSize: 9),
+                  maxLines: 50,
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
-            ],
           ],
         ),
       ),
@@ -737,6 +705,11 @@ class _WeekSchedulePageState extends ConsumerState<WeekSchedulePage> {
           context: context,
           applicationName: 'WakeUp 课程表',
           applicationVersion: '0.1.0',
+        );
+      case ActionItem.themeSettings:
+        showDialog(
+          context: context,
+          builder: (_) => const ThemeSettingsDialog(),
         );
     }
   }
