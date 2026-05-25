@@ -21,7 +21,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   final appDir = await getApplicationDocumentsDirectory();
-  final dbPath = p.join(appDir.path, 'flwakeup.db');
+  final dbPath = p.join(appDir.path, 'flass.db');
   final db = AppDatabase(NativeDatabase(File(dbPath)));
 
   await _initSampleData(db);

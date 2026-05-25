@@ -1,13 +1,16 @@
+import 'package:drift/drift.dart' as drift;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../core/constants/app_strings.dart';
 import '../../core/utils/vibrate.dart';
+import '../../data/datasources/database.dart' show SemesterConfigsCompanion;
 import '../../data/models/course.dart';
 import '../../data/models/schedule.dart';
 import '../providers/course_provider.dart';
 import '../providers/schedule_provider.dart';
+import '../providers/semester_provider.dart';
 
 /// Shared import logic reused by both 教务导入 and 文本导入.
 class ImportHelper {
@@ -78,8 +81,11 @@ class _ImportChoiceDialogState extends ConsumerState<_ImportChoiceDialog> {
     try {
       await widget.onOverwrite(ref, widget.courses);
       if (mounted) {
-        Navigator.pop(context);
-        widget.onComplete?.call();
+        await _showSemesterConfigDialog();
+        if (mounted) {
+          Navigator.pop(context);
+          widget.onComplete?.call();
+        }
       }
     } catch (e) {
       if (mounted) {
@@ -136,8 +142,11 @@ class _ImportChoiceDialogState extends ConsumerState<_ImportChoiceDialog> {
     try {
       await widget.onNewSchedule(ref, widget.courses, scheduleName);
       if (mounted) {
-        Navigator.pop(context);
-        widget.onComplete?.call();
+        await _showSemesterConfigDialog();
+        if (mounted) {
+          Navigator.pop(context);
+          widget.onComplete?.call();
+        }
       }
     } catch (e) {
       if (mounted) {
@@ -147,6 +156,36 @@ class _ImportChoiceDialogState extends ConsumerState<_ImportChoiceDialog> {
         });
       }
     }
+  }
+
+  /// Shows the semester config dialog after a successful import.
+  /// Pre-fills with existing config if available.
+  Future<void> _showSemesterConfigDialog() async {
+    final existing = await ref.read(activeSemesterProvider.future);
+
+    if (!mounted) return;
+
+    final result = await showDialog<_SemesterConfigResult>(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => _SemesterConfigDialog(
+        initialDate: existing != null
+            ? DateTime.parse(existing.startDate)
+            : DateTime.now(),
+        initialWeeks: existing?.totalWeeks ?? 20,
+      ),
+    );
+
+    if (result == null || !mounted) return;
+
+    await ref.read(activeSemesterProvider.notifier).setConfig(
+      SemesterConfigsCompanion(
+        name: drift.Value(existing?.name ?? '默认学期'),
+        startDate: drift.Value(
+            '${result.startDate.toIso8601String().split('T')[0]}T00:00:00'),
+        totalWeeks: drift.Value(result.totalWeeks),
+      ),
+    );
   }
 
   @override
@@ -234,5 +273,106 @@ Future<void> newScheduleImport(
   final notifier = ref.read(courseListProvider.notifier);
   for (final c in courses) {
     await notifier.addCourse(c);
+  }
+}
+
+/// Result from the semester config dialog.
+class _SemesterConfigResult {
+  final DateTime startDate;
+  final int totalWeeks;
+  const _SemesterConfigResult({
+    required this.startDate,
+    required this.totalWeeks,
+  });
+}
+
+/// Dialog for setting semester start date and total weeks.
+class _SemesterConfigDialog extends StatefulWidget {
+  final DateTime initialDate;
+  final int initialWeeks;
+
+  const _SemesterConfigDialog({
+    required this.initialDate,
+    required this.initialWeeks,
+  });
+
+  @override
+  State<_SemesterConfigDialog> createState() => _SemesterConfigDialogState();
+}
+
+class _SemesterConfigDialogState extends State<_SemesterConfigDialog> {
+  late DateTime _selectedDate;
+  late TextEditingController _weeksController;
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedDate = widget.initialDate;
+    _weeksController =
+        TextEditingController(text: widget.initialWeeks.toString());
+  }
+
+  @override
+  void dispose() {
+    _weeksController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _pickDate() async {
+    final date = await showDatePicker(
+      context: context,
+      initialDate: _selectedDate,
+      firstDate: DateTime(2020),
+      lastDate: DateTime(2030),
+    );
+    if (date != null && mounted) {
+      setState(() => _selectedDate = date);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final dateStr =
+        '${_selectedDate.year}-${_selectedDate.month.toString().padLeft(2, '0')}-${_selectedDate.day.toString().padLeft(2, '0')}';
+    return AlertDialog(
+      title: const Text('设置学期'),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          ListTile(
+            title: const Text('开学日期'),
+            subtitle: Text(dateStr),
+            trailing: const Icon(Icons.calendar_today),
+            onTap: _pickDate,
+          ),
+          TextField(
+            controller: _weeksController,
+            decoration: const InputDecoration(labelText: '总周数'),
+            keyboardType: TextInputType.number,
+          ),
+        ],
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('跳过'),
+        ),
+        ElevatedButton(
+          onPressed: () {
+            final weeks = int.tryParse(_weeksController.text);
+            if (weeks == null || weeks < 1) return;
+            Vibrate.light();
+            Navigator.pop(
+              context,
+              _SemesterConfigResult(
+                startDate: _selectedDate,
+                totalWeeks: weeks,
+              ),
+            );
+          },
+          child: const Text('确定'),
+        ),
+      ],
+    );
   }
 }
