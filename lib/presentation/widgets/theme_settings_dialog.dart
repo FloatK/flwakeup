@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../core/utils/vibrate.dart';
 import '../providers/theme_provider.dart';
 
 class ThemeSettingsDialog extends ConsumerStatefulWidget {
@@ -83,6 +84,7 @@ class _ThemeSettingsDialogState extends ConsumerState<ThemeSettingsDialog> {
                   ),
                   value: _followSystem,
                   onChanged: (v) {
+                    Vibrate.light();
                     setState(() => _followSystem = v);
                     _applySettings();
                   },
@@ -204,6 +206,7 @@ class _ThemeSettingsDialogState extends ConsumerState<ThemeSettingsDialog> {
                   ),
                   value: settings.followThemeBackground,
                   onChanged: (v) {
+                    Vibrate.light();
                     _updateAndSave(
                         (s) => s.copyWith(followThemeBackground: v));
                   },
@@ -218,7 +221,10 @@ class _ThemeSettingsDialogState extends ConsumerState<ThemeSettingsDialog> {
         Opacity(
           opacity: _draggingSlider == null ? 1.0 : 0.0,
           child: TextButton(
-            onPressed: () => (widget.onClose ?? () => Navigator.pop(context))(),
+            onPressed: () {
+              Vibrate.light();
+              (widget.onClose ?? () => Navigator.pop(context))();
+            },
             child: const Text('关闭'),
           ),
         ),
@@ -307,6 +313,7 @@ class _ThemeSettingsDialogState extends ConsumerState<ThemeSettingsDialog> {
         selected: {_brightness},
         onSelectionChanged: enabled
             ? (v) {
+                Vibrate.light();
                 setState(() => _brightness = v.first);
                 _applySettings();
               }
@@ -324,6 +331,7 @@ class _ThemeSettingsDialogState extends ConsumerState<ThemeSettingsDialog> {
         final isSelected = _colorIndex == i;
         return GestureDetector(
           onTap: () {
+            Vibrate.light();
             setState(() => _colorIndex = i);
             _applySettings();
           },

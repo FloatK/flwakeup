@@ -5,6 +5,7 @@ import 'package:uuid/uuid.dart';
 
 import '../../core/constants/app_strings.dart';
 import '../../core/utils/ui_utils.dart';
+import '../../core/utils/vibrate.dart';
 import '../../data/models/schedule.dart';
 import '../providers/schedule_provider.dart';
 import 'schedule_edit_page.dart';
@@ -33,7 +34,7 @@ class ScheduleListPage extends ConsumerWidget {
                 return Padding(
                   padding: const EdgeInsets.only(top: 16),
                   child: OutlinedButton.icon(
-                    onPressed: () => _createSchedule(context, ref),
+                    onPressed: () { Vibrate.light(); _createSchedule(context, ref); },
                     icon: const Icon(Icons.add),
                     label: const Text(AppStrings.createSchedule),
                   ),
@@ -62,7 +63,7 @@ class ScheduleListPage extends ConsumerWidget {
                       ),
                       if (!isActive)
                         TextButton(
-                          onPressed: () => _applySchedule(context, ref, s),
+                          onPressed: () { Vibrate.light(); _applySchedule(context, ref, s); },
                           child: const Text(AppStrings.apply),
                         ),
                       if (isActive)
@@ -72,6 +73,7 @@ class ScheduleListPage extends ConsumerWidget {
                         ),
                       TextButton(
                         onPressed: () {
+                          Vibrate.light();
                           Navigator.push(
                             context,
                             MaterialPageRoute(
@@ -82,7 +84,7 @@ class ScheduleListPage extends ConsumerWidget {
                         child: const Text(AppStrings.edit),
                       ),
                       TextButton(
-                        onPressed: () => _confirmDelete(context, ref, s),
+                          onPressed: () { Vibrate.light(); _confirmDelete(context, ref, s); },
                         child: Text(AppStrings.delete,
                             style: const TextStyle(color: Colors.red)),
                       ),
@@ -118,11 +120,11 @@ class ScheduleListPage extends ConsumerWidget {
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(ctx),
+            onPressed: () { Vibrate.light(); Navigator.pop(ctx); },
             child: const Text(AppStrings.cancel),
           ),
           TextButton(
-            onPressed: () => Navigator.pop(ctx, nameCtrl.text.trim()),
+            onPressed: () { Vibrate.light(); Navigator.pop(ctx, nameCtrl.text.trim()); },
             child: const Text(AppStrings.confirm),
           ),
         ],
@@ -146,11 +148,12 @@ class ScheduleListPage extends ConsumerWidget {
         content: Text('${AppStrings.confirmDeleteMessage}「${s.name}」吗？'),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(ctx),
+            onPressed: () { Vibrate.light(); Navigator.pop(ctx); },
             child: const Text(AppStrings.cancel),
           ),
           TextButton(
             onPressed: () async {
+              Vibrate.light();
               try {
                 await ref.read(scheduleRepositoryProvider).deleteSchedule(s.id);
                 ref.invalidate(scheduleListProvider);

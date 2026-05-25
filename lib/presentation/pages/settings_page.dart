@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../core/constants/app_strings.dart';
 import '../../core/utils/ui_utils.dart';
+import '../../core/utils/vibrate.dart';
 import '../providers/theme_provider.dart';
 
 class SettingsPage extends ConsumerStatefulWidget {
@@ -34,12 +35,13 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
               SwitchListTile(
                 secondary: const Icon(Icons.vibration),
                 title: const Text('振动反馈'),
-                subtitle: const Text('点击课表时给予轻微振动'),
+                subtitle: const Text('点击时给予轻微振动反馈'),
                 value: settings.vibrationEnabled,
                 onChanged: (v) {
                   ref.read(themeSettingsProvider.notifier).state =
                       settings.copyWith(vibrationEnabled: v);
                   saveThemeSettings(settings.copyWith(vibrationEnabled: v));
+                  Vibrate.light();
                 },
               ),
             ],
@@ -54,7 +56,10 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                 leading: const Icon(Icons.info_outline),
                 title: const Text(AppStrings.about),
                 trailing: const Icon(Icons.chevron_right),
-                onTap: () => context.push('/about'),
+                onTap: () {
+                  Vibrate.light();
+                  context.push('/about');
+                },
               ),
               ListTile(
                 leading: Icon(
@@ -65,7 +70,10 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                   AppStrings.clearCache,
                   style: TextStyle(color: theme.colorScheme.error),
                 ),
-                onTap: () => _showClearCacheDialog(context),
+                onTap: () {
+                  Vibrate.light();
+                  _showClearCacheDialog(context);
+                },
               ),
             ],
           ),

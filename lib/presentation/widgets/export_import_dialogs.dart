@@ -10,6 +10,7 @@ import '../../core/constants/app_strings.dart';
 import '../../core/utils/export_utils.dart';
 import '../../core/utils/import_utils.dart';
 import '../../core/utils/ui_utils.dart';
+import '../../core/utils/vibrate.dart';
 import '../../data/models/course.dart';
 import '../utils/import_helper.dart';
 
@@ -38,6 +39,7 @@ class ExportDialog extends StatelessWidget {
       actions: [
         TextButton(
           onPressed: () {
+            Vibrate.light();
             Navigator.pop(context);
             final copyText = '将该条消息复制，点击从文本导入即可导入课表。\n「$compact」';
             Clipboard.setData(ClipboardData(text: copyText));
@@ -48,6 +50,7 @@ class ExportDialog extends StatelessWidget {
         ),
         TextButton(
           onPressed: () async {
+            Vibrate.light();
             Navigator.pop(context);
             try {
               final dir = await getTemporaryDirectory();
@@ -70,7 +73,10 @@ class ExportDialog extends StatelessWidget {
           child: const Text(AppStrings.shareFile),
         ),
         TextButton(
-          onPressed: () => Navigator.pop(context),
+          onPressed: () {
+            Vibrate.light();
+            Navigator.pop(context);
+          },
           child: const Text(AppStrings.cancel),
         ),
       ],
@@ -119,6 +125,7 @@ class _ImportFromTextDialogState extends ConsumerState<ImportFromTextDialog> {
       actions: [
         TextButton(
           onPressed: () async {
+            Vibrate.light();
             final clipboardData =
                 await Clipboard.getData(Clipboard.kTextPlain);
             if (clipboardData == null || clipboardData.text == null) {
@@ -129,11 +136,17 @@ class _ImportFromTextDialogState extends ConsumerState<ImportFromTextDialog> {
           child: const Text(AppStrings.pasteFromClipboard),
         ),
         TextButton(
-          onPressed: () => Navigator.pop(context),
+          onPressed: () {
+            Vibrate.light();
+            Navigator.pop(context);
+          },
           child: const Text(AppStrings.cancel),
         ),
         TextButton(
-          onPressed: () => _parseAndImport(context),
+          onPressed: () {
+            Vibrate.light();
+            _parseAndImport(context);
+          },
           child: const Text(AppStrings.parse),
         ),
       ],

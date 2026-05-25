@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/constants/app_strings.dart';
 import '../../core/utils/ui_utils.dart';
+import '../../core/utils/vibrate.dart';
 import '../../data/datasources/database.dart' hide Schedule;
 import '../../data/models/schedule.dart';
 import '../providers/schedule_provider.dart';
@@ -64,7 +65,7 @@ class _ScheduleEditPageState extends ConsumerState<ScheduleEditPage> {
         title: const Text(AppStrings.editSchedule),
         actions: [
           TextButton(
-            onPressed: _save,
+            onPressed: () { Vibrate.light(); _save(); },
             child: const Text(AppStrings.save),
           ),
         ],

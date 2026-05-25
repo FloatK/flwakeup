@@ -25,7 +25,7 @@
 
 ### 导入功能
 - **教务系统导入**：内置 WebView 访问教务系统，抓取课表页面自动解析
-- **文本导入**：粘贴紧凑码（GZip + base64 编码），一键导入课表
+- **文本导入**：粘贴紧凑码，一键导入课表
 - 导入时支持「覆盖当前课表」或「新建课表并导入」
 - 桌面端支持粘贴 HTML 源代码解析
 
@@ -54,7 +54,7 @@
 | 路由 | go\_router |
 | 代码生成 | freezed（数据类）、json\_serializable、riverpod\_generator、drift\_dev |
 | 本地化 | flutter\_localizations，中英双语 |
-| 网络 | dio + retrofit（教务 API）、webview\_flutter（内置浏览器） |
+| 网络 | dio + retrofit（教务 API）、webview\_flutter |
 | 存储 | SharedPreferences（主题设置持久化） |
 | 其他 | uuid、share\_plus、path\_provider、html 解析 |
 
@@ -63,14 +63,14 @@
 ```
 lib/
 ├── app.dart                          # MaterialApp 入口（主题 + 本地化）
-├── main.dart                         # 初始化（数据库、主题设置）
+├── main.dart                         # 初始化
 ├── core/
 │   ├── config/                       # AppBar 按钮配置、ActionItem 枚举
 │   ├── constants/                    # AppStrings、AppColors 常量
-│   ├── theme/                        # ThemeData 构建（动态主题色）
+│   ├── theme/                        # ThemeData 构建
 │   └── utils/                        # 公共工具类
 │       ├── export_utils.dart         # 紧凑码编解码
-│       ├── import_utils.dart         # 导入解析（纯 Dart，无 UI 依赖）
+│       ├── import_utils.dart         # 导入解析
 │       ├── ui_utils.dart             # SnackBar 等 UI 工具
 │       ├── week_utils.dart           # 周次解析
 │       ├── date_utils.dart           # 日期工具
@@ -95,16 +95,16 @@ lib/
     │   ├── import_schedule_page.dart  # 教务导入页面
     │   ├── add_edit_course_page.dart  # 添加/编辑课程
     │   ├── schedule_list_page.dart    # 课表列表页面
-    │   ├── schedule_edit_page.dart    # 课表编辑（学期设置）
+    │   ├── schedule_edit_page.dart    # 课表编辑
     │   ├── settings_page.dart         # 设置页面
     │   └── about_page.dart            # 关于页面
     ├── providers/                     # Riverpod 状态管理
-    │   ├── theme_provider.dart        # 主题设置模型 + 持久化
+    │   ├── theme_provider.dart        # 主题设置模型
     │   ├── course_provider.dart       # 课程列表流
-    │   ├── schedule_provider.dart     # 课表列表 + 当前课表
+    │   ├── schedule_provider.dart     # 课表列表
     │   └── semester_provider.dart     # 学期配置
     ├── utils/                         # 页面级工具
-    │   └── import_helper.dart         # 导入流程（选择对话框、覆盖/新建）
+    │   └── import_helper.dart         # 导入流程
     └── widgets/                       # UI 组件
         ├── course_grid_widget.dart    # 课程网格
         ├── course_detail_bottom_sheet.dart  # 课程详情底部面板

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../core/utils/vibrate.dart';
+
 class ThemeSettings {
   final bool followSystem;
   final Brightness brightness;
@@ -104,7 +106,7 @@ class ThemeSettings {
 
 Future<ThemeSettings> loadThemeSettings() async {
   final prefs = await SharedPreferences.getInstance();
-  return ThemeSettings(
+  final settings = ThemeSettings(
     followSystem: prefs.getBool('theme_follow_system') ?? true,
     brightness: prefs.getString('theme_brightness') == 'dark'
         ? Brightness.dark
@@ -118,6 +120,8 @@ Future<ThemeSettings> loadThemeSettings() async {
     followThemeBackground: prefs.getBool('theme_follow_theme_background') ?? false,
     vibrationEnabled: prefs.getBool('theme_vibration_enabled') ?? true,
   );
+  Vibrate.setEnabled(settings.vibrationEnabled);
+  return settings;
 }
 
 Future<void> saveThemeSettings(ThemeSettings settings) async {
@@ -135,6 +139,7 @@ Future<void> saveThemeSettings(ThemeSettings settings) async {
   await prefs.setDouble('theme_color_lightness', settings.colorLightness);
   await prefs.setBool('theme_follow_theme_background', settings.followThemeBackground);
   await prefs.setBool('theme_vibration_enabled', settings.vibrationEnabled);
+  Vibrate.setEnabled(settings.vibrationEnabled);
 }
 
 final themeSettingsProvider = StateProvider<ThemeSettings>((ref) {

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../core/constants/app_strings.dart';
+import '../../core/utils/vibrate.dart';
 import '../../data/models/course.dart';
 import '../../data/models/schedule.dart';
 import '../providers/course_provider.dart';
@@ -107,11 +108,17 @@ class _ImportChoiceDialogState extends ConsumerState<_ImportChoiceDialog> {
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(ctx),
+            onPressed: () {
+              Vibrate.light();
+              Navigator.pop(ctx);
+            },
             child: const Text(AppStrings.cancel),
           ),
           ElevatedButton(
-            onPressed: () => Navigator.pop(ctx, nameCtrl.text.trim()),
+            onPressed: () {
+              Vibrate.light();
+              Navigator.pop(ctx, nameCtrl.text.trim());
+            },
             child: const Text(AppStrings.confirmImport),
           ),
         ],
@@ -161,15 +168,24 @@ class _ImportChoiceDialogState extends ConsumerState<_ImportChoiceDialog> {
           ? []
           : [
               TextButton(
-                onPressed: _doOverwrite,
+                onPressed: () {
+                  Vibrate.light();
+                  _doOverwrite();
+                },
                 child: const Text('覆盖当前课表'),
               ),
               TextButton(
-                onPressed: _doNewSchedule,
+                onPressed: () {
+                  Vibrate.light();
+                  _doNewSchedule();
+                },
                 child: const Text('新建课表并导入'),
               ),
               TextButton(
-                onPressed: () => Navigator.pop(context),
+                onPressed: () {
+                  Vibrate.light();
+                  Navigator.pop(context);
+                },
                 child: const Text('取消'),
               ),
             ],

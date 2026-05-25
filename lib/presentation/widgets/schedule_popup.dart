@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../core/config/action_item.dart';
 import '../../core/config/app_bar_config.dart';
+import '../../core/utils/vibrate.dart';
 
 /// Custom popup displayed when tapping the AppBar's overflow menu button.
 /// Contains: week slider + GridView of action buttons (4 columns).
@@ -143,6 +144,7 @@ class _SchedulePopupState extends ConsumerState<SchedulePopup> {
             label: item.displayName,
             icon: item.icon,
             onTap: () {
+              Vibrate.light();
               Navigator.pop(context);
               widget.onActionItem?.call(item);
             },
@@ -151,6 +153,7 @@ class _SchedulePopupState extends ConsumerState<SchedulePopup> {
         label: '设置',
         icon: Icons.settings,
         onTap: () {
+          Vibrate.light();
           Navigator.pop(context);
           context.push('/settings');
         },
@@ -159,6 +162,7 @@ class _SchedulePopupState extends ConsumerState<SchedulePopup> {
         label: '配置工具栏',
         icon: Icons.tune,
         onTap: () {
+          Vibrate.light();
           Navigator.pop(context);
           _showConfigDialog(context, widget.appBarItems, widget.onConfigChanged);
         },
@@ -289,6 +293,7 @@ class _AppBarConfigDialogState extends State<_AppBarConfigDialog> {
                     ],
                   ),
                   onChanged: (v) {
+                    Vibrate.light();
                     setState(() {
                       if (v == true) {
                         if (_selected.length >= ActionItem.maxAppBarItems) {
@@ -320,6 +325,7 @@ class _AppBarConfigDialogState extends State<_AppBarConfigDialog> {
           children: [
             TextButton(
               onPressed: () {
+                Vibrate.light();
                 const defaults = [
                   ActionItem.importTimetable,
                   ActionItem.exportTimetable,
@@ -331,12 +337,16 @@ class _AppBarConfigDialogState extends State<_AppBarConfigDialog> {
             ),
             const Spacer(),
             TextButton(
-              onPressed: () => Navigator.pop(context),
+              onPressed: () {
+                Vibrate.light();
+                Navigator.pop(context);
+              },
               child: const Text('取消'),
             ),
             const SizedBox(width: 8),
             ElevatedButton(
               onPressed: () {
+                Vibrate.light();
                 widget.onSaved(_selected);
                 Navigator.pop(context);
               },

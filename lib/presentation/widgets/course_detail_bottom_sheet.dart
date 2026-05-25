@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/constants/app_strings.dart';
+import '../../core/utils/vibrate.dart';
 import '../../core/utils/week_utils.dart';
 import '../../data/models/course.dart';
 
@@ -99,6 +100,7 @@ class CourseDetailBottomSheet extends StatelessWidget {
                 Expanded(
                   child: OutlinedButton.icon(
                     onPressed: () {
+                      Vibrate.light();
                       Navigator.pop(context);
                       context.push('/edit/${course.id}');
                     },
@@ -110,6 +112,7 @@ class CourseDetailBottomSheet extends StatelessWidget {
                 Expanded(
                   child: ElevatedButton.icon(
                     onPressed: () {
+                      Vibrate.light();
                       Navigator.pop(context);
                       onDelete?.call();
                     },

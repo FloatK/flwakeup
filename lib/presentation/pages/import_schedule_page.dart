@@ -9,6 +9,7 @@ import '../../core/constants/app_strings.dart';
 import '../../core/utils/edu_system_webview_controller.dart';
 import '../../core/utils/edu_url_store.dart';
 import '../../core/utils/ui_utils.dart';
+import '../../core/utils/vibrate.dart';
 import '../../data/datasources/edu_parser.dart';
 import '../utils/import_helper.dart';
 
@@ -151,7 +152,7 @@ class _ImportSchedulePageState extends ConsumerState<ImportSchedulePage> {
         title: const Text(AppStrings.importFromEdu),
         actions: [
           TextButton.icon(
-            onPressed: isParsing ? null : _parseSchedule,
+            onPressed: isParsing ? null : () { Vibrate.light(); _parseSchedule(); },
             icon: const Icon(Icons.download, size: 18),
             label: const Text(AppStrings.fetchSchedule),
           ),
@@ -196,7 +197,7 @@ class _ImportSchedulePageState extends ConsumerState<ImportSchedulePage> {
               ),
               const SizedBox(width: 8),
               IconButton.filled(
-                onPressed: _navigateToUrl,
+                onPressed: () { Vibrate.light(); _navigateToUrl(); },
                 icon: const Icon(Icons.arrow_forward, size: 20),
                 style: IconButton.styleFrom(minimumSize: const Size(40, 40)),
               ),

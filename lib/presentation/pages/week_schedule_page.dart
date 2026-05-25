@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/config/action_item.dart';
+import '../../core/utils/vibrate.dart';
 import '../../core/config/app_bar_config.dart';
 import '../../core/constants/app_strings.dart';
 import '../../data/datasources/database.dart' hide Course, TimeDetail, Schedule;
@@ -13,6 +14,7 @@ import '../providers/semester_provider.dart';
 import '../widgets/course_detail_bottom_sheet.dart';
 import '../widgets/course_grid_widget.dart';
 import '../widgets/export_import_dialogs.dart';
+import '../widgets/mutable_barrier_route.dart';
 import '../widgets/schedule_popup.dart';
 import '../widgets/swap_course_dialog.dart';
 import '../widgets/theme_settings_dialog.dart';
@@ -77,7 +79,10 @@ class _WeekSchedulePageState extends ConsumerState<WeekSchedulePage> {
       appBar: _buildAppBar(semester, displayedWeek, currentWeek, isCurrentWeek),
       body: _buildBody(semesterAsync, courseListAsync, semester, displayedWeek),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => context.push('/add'),
+        onPressed: () {
+          Vibrate.light();
+          context.push('/add');
+        },
         child: const Icon(Icons.add),
       ),
     );
@@ -134,13 +139,19 @@ class _WeekSchedulePageState extends ConsumerState<WeekSchedulePage> {
               (item) => IconButton(
                 icon: Icon(item.icon, size: 20),
                 tooltip: item.displayName,
-                onPressed: () => _handleAppBarAction(context, item),
+                onPressed: () {
+                  Vibrate.light();
+                  _handleAppBarAction(context, item);
+                },
               ),
             ),
         IconButton(
           icon: const Icon(Icons.more_vert),
           tooltip: AppStrings.more,
-          onPressed: () => _showSchedulePopup(context),
+          onPressed: () {
+            Vibrate.light();
+            _showSchedulePopup(context);
+          },
         ),
       ],
     );
@@ -236,7 +247,10 @@ class _WeekSchedulePageState extends ConsumerState<WeekSchedulePage> {
             ),
             const SizedBox(height: 16),
             OutlinedButton.icon(
-              onPressed: () => ref.invalidate(courseListProvider),
+              onPressed: () {
+                Vibrate.light();
+                ref.invalidate(courseListProvider);
+              },
               icon: const Icon(Icons.refresh),
               label: const Text(AppStrings.retry),
             ),
@@ -264,11 +278,15 @@ class _WeekSchedulePageState extends ConsumerState<WeekSchedulePage> {
         content: Text('${AppStrings.confirmDeleteMessage}"${course.name}"?'),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(ctx),
+            onPressed: () {
+              Vibrate.light();
+              Navigator.pop(ctx);
+            },
             child: const Text(AppStrings.cancel),
           ),
           TextButton(
             onPressed: () async {
+              Vibrate.light();
               Navigator.pop(ctx);
               await ref
                   .read(courseListProvider.notifier)
@@ -286,44 +304,17 @@ class _WeekSchedulePageState extends ConsumerState<WeekSchedulePage> {
   // ---------------------------------------------------------------------------
 
   void _showThemeSettingsOverlay(BuildContext pageContext) {
-    late OverlayEntry entry;
-    bool isDragging = false;
+    final dragNotifier = ValueNotifier<bool>(false);
 
-    entry = OverlayEntry(
-      builder: (ctx) {
-        return Stack(
-          children: [
-            // Custom barrier with controllable opacity
-            GestureDetector(
-              onTap: () {
-                entry.remove();
-              },
-              child: AnimatedOpacity(
-                opacity: isDragging ? 0.0 : 1.0,
-                duration: const Duration(milliseconds: 200),
-                child: Container(color: Colors.black54),
-              ),
-            ),
-            Center(
-              child: Padding(
-                padding: const EdgeInsets.all(24),
-                child: ThemeSettingsDialog(
-                  onDragChanged: (v) {
-                    isDragging = v;
-                    entry.markNeedsBuild();
-                  },
-                  onClose: () {
-                    entry.remove();
-                  },
-                ),
-              ),
-            ),
-          ],
-        );
-      },
+    Navigator.of(pageContext).push(
+      MutableBarrierRoute<bool>(
+        dragNotifier: dragNotifier,
+        builder: (_) => ThemeSettingsDialog(
+          onDragChanged: (v) => dragNotifier.value = v,
+          onClose: () => Navigator.of(pageContext).pop(),
+        ),
+      ),
     );
-
-    Overlay.of(pageContext).insert(entry);
   }
 
   void _handleAppBarAction(BuildContext context, ActionItem item) {

@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../core/constants/app_colors.dart';
+import '../../core/utils/vibrate.dart';
 import '../../core/constants/app_strings.dart';
 import '../../core/utils/ui_utils.dart';
 import '../../data/models/course.dart';
@@ -262,7 +263,7 @@ class _AddEditCoursePageState extends ConsumerState<AddEditCoursePage> {
         offset: _showSaveButton ? Offset.zero : const Offset(0, 2),
         duration: const Duration(milliseconds: 200),
         child: FloatingActionButton.extended(
-          onPressed: _saving ? null : _save,
+          onPressed: _saving ? null : () { Vibrate.light(); _save(); },
           icon: _saving
               ? const SizedBox(
                   width: 20,
@@ -303,7 +304,7 @@ class _AddEditCoursePageState extends ConsumerState<AddEditCoursePage> {
       children: AppColors.presetCourseColors.map((color) {
         final isSelected = _selectedColor == color;
         return GestureDetector(
-          onTap: () => setState(() => _selectedColor = color),
+          onTap: () { Vibrate.light(); setState(() => _selectedColor = color); },
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 200),
             width: 32,
@@ -363,8 +364,7 @@ class _AddEditCoursePageState extends ConsumerState<AddEditCoursePage> {
                 if (_timeEntries.length > 1)
                   IconButton(
                     icon: const Icon(Icons.delete_outline, size: 20),
-                    onPressed: () =>
-                        setState(() => _timeEntries.removeAt(index)),
+                    onPressed: () { Vibrate.light(); setState(() => _timeEntries.removeAt(index)); },
                     color: colorScheme.error,
                     visualDensity: VisualDensity.compact,
                   ),
@@ -453,18 +453,27 @@ class _AddEditCoursePageState extends ConsumerState<AddEditCoursePage> {
               spacing: 4,
               runSpacing: 4,
               children: [
-                _buildWeekChip(AppStrings.allWeeks, () => setState(() {
-                      entry.selectedWeeks =
-                          Set<int>.from(List.generate(20, (i) => i + 1));
-                    })),
-                _buildWeekChip(AppStrings.singleWeek, () => setState(() {
-                      entry.selectedWeeks =
-                          Set<int>.from(List.generate(10, (i) => i * 2 + 1));
-                    })),
-                _buildWeekChip(AppStrings.doubleWeek, () => setState(() {
-                      entry.selectedWeeks =
-                          Set<int>.from(List.generate(10, (i) => i * 2 + 2));
-                    })),
+                _buildWeekChip(AppStrings.allWeeks, () {
+                  Vibrate.light();
+                  setState(() {
+                    entry.selectedWeeks =
+                        Set<int>.from(List.generate(20, (i) => i + 1));
+                  });
+                }),
+                _buildWeekChip(AppStrings.singleWeek, () {
+                  Vibrate.light();
+                  setState(() {
+                    entry.selectedWeeks =
+                        Set<int>.from(List.generate(10, (i) => i * 2 + 1));
+                  });
+                }),
+                _buildWeekChip(AppStrings.doubleWeek, () {
+                  Vibrate.light();
+                  setState(() {
+                    entry.selectedWeeks =
+                        Set<int>.from(List.generate(10, (i) => i * 2 + 2));
+                  });
+                }),
               ],
             ),
 
@@ -478,13 +487,16 @@ class _AddEditCoursePageState extends ConsumerState<AddEditCoursePage> {
                 final week = i + 1;
                 final selected = entry.selectedWeeks.contains(week);
                 return InkWell(
-                  onTap: () => setState(() {
-                    if (selected) {
-                      entry.selectedWeeks.remove(week);
-                    } else {
-                      entry.selectedWeeks.add(week);
-                    }
-                  }),
+                  onTap: () {
+                    Vibrate.light();
+                    setState(() {
+                      if (selected) {
+                        entry.selectedWeeks.remove(week);
+                      } else {
+                        entry.selectedWeeks.add(week);
+                      }
+                    });
+                  },
                   child: Container(
                     width: 36,
                     height: 32,
@@ -528,7 +540,7 @@ class _AddEditCoursePageState extends ConsumerState<AddEditCoursePage> {
 
   Widget _buildAddTimeButton(ColorScheme colorScheme) {
     return OutlinedButton.icon(
-      onPressed: () => setState(() => _timeEntries.add(_TimeEntryData())),
+      onPressed: () { Vibrate.light(); setState(() => _timeEntries.add(_TimeEntryData())); },
       icon: const Icon(Icons.add, size: 18),
       label: const Text(AppStrings.addTimeSlot),
     );

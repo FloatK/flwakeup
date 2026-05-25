@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_strings.dart';
+import '../../core/utils/vibrate.dart';
 import '../../data/models/course.dart';
 import '../providers/theme_provider.dart';
 
@@ -254,9 +254,7 @@ class CourseGridWidget extends ConsumerWidget {
 
     return GestureDetector(
       onTap: () {
-        if (tSettings.vibrationEnabled) {
-          HapticFeedback.lightImpact();
-        }
+        Vibrate.light();
         onCourseTap?.call(course);
       },
       child: Container(

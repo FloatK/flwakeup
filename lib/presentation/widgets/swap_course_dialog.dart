@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/constants/app_strings.dart';
 import '../../core/utils/ui_utils.dart';
+import '../../core/utils/vibrate.dart';
 import '../../data/models/course.dart';
 import '../providers/course_provider.dart';
 
@@ -173,7 +174,10 @@ class _SwapCourseDialogState extends ConsumerState<SwapCourseDialog> {
               label: '从',
               date: _sourceDate,
               courseCount: sourceCourses.length,
-              onTap: () => _selectDate(true),
+              onTap: () {
+                Vibrate.light();
+                _selectDate(true);
+              },
             ),
             const SizedBox(height: 16),
             // Arrow
@@ -186,7 +190,10 @@ class _SwapCourseDialogState extends ConsumerState<SwapCourseDialog> {
               label: '到',
               date: _targetDate,
               courseCount: targetCourses.length,
-              onTap: () => _selectDate(false),
+              onTap: () {
+                Vibrate.light();
+                _selectDate(false);
+              },
             ),
             if (sourceCourses.isNotEmpty) ...[
               const SizedBox(height: 20),
@@ -203,13 +210,19 @@ class _SwapCourseDialogState extends ConsumerState<SwapCourseDialog> {
       ),
       actions: [
         TextButton(
-          onPressed: () => Navigator.pop(context),
+          onPressed: () {
+            Vibrate.light();
+            Navigator.pop(context);
+          },
           child: const Text(AppStrings.cancel),
         ),
         ElevatedButton(
           onPressed: _getDayOfWeek(_sourceDate) == _getDayOfWeek(_targetDate)
               ? null
-              : _swapCourses,
+              : () {
+                  Vibrate.light();
+                  _swapCourses();
+                },
           child: const Text('确认调课'),
         ),
       ],
