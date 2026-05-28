@@ -32,6 +32,9 @@ class Schedules extends Table {
   DateTimeColumn get createdAt => dateTime()();
   TextColumn get displayedWeekdays => text().nullable()();
   IntColumn get maxCoursesPerDay => integer().nullable()();
+  // 新增：每个课表独立的开学日期和总周数
+  TextColumn get startDate => text().nullable()();
+  IntColumn get totalWeeks => integer().nullable()();
 
   @override
   Set<Column> get primaryKey => {id};
@@ -50,7 +53,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase(super.e);
 
   @override
-  int get schemaVersion => 3;
+  int get schemaVersion => 4;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -62,6 +65,11 @@ class AppDatabase extends _$AppDatabase {
           if (from < 3) {
             await m.addColumn(schedules, schedules.displayedWeekdays);
             await m.addColumn(schedules, schedules.maxCoursesPerDay);
+          }
+          if (from < 4) {
+            // 添加每个课表独立的开学日期和总周数
+            await m.addColumn(schedules, schedules.startDate);
+            await m.addColumn(schedules, schedules.totalWeeks);
           }
         },
       );

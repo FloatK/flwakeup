@@ -1,4 +1,4 @@
-package com.example.flass
+package com.floatk.flass
 
 import io.flutter.embedding.android.FlutterActivity
 

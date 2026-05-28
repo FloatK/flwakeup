@@ -85,20 +85,20 @@ VS_VERSION_INFO VERSIONINFO
  FILETYPE VFT_APP
  FILESUBTYPE 0x0L
 BEGIN
-    BLOCK "StringFileInfo"
-    BEGIN
-        BLOCK "040904e4"
+BLOCK "StringFileInfo"
         BEGIN
-            VALUE "CompanyName", "com.example" "\0"
-            VALUE "FileDescription", "flass" "\0"
-            VALUE "FileVersion", VERSION_AS_STRING "\0"
-            VALUE "InternalName", "flass" "\0"
-            VALUE "LegalCopyright", "Copyright (C) 2026 com.example. All rights reserved." "\0"
-            VALUE "OriginalFilename", "flass.exe" "\0"
-            VALUE "ProductName", "flass" "\0"
-            VALUE "ProductVersion", VERSION_AS_STRING "\0"
+            BLOCK "040904e4"
+            BEGIN
+                VALUE "CompanyName", "FloatK" "\0"
+                VALUE "FileDescription", "Flass - 课程表应用" "\0"
+                VALUE "FileVersion", VERSION_AS_STRING "\0"
+                VALUE "InternalName", "Flass" "\0"
+                VALUE "LegalCopyright", "Copyright (C) 2026 FloatK. All rights reserved." "\0"
+                VALUE "OriginalFilename", "Flass.exe" "\0"
+                VALUE "ProductName", "Flass" "\0"
+                VALUE "ProductVersion", VERSION_AS_STRING "\0"
+            END
         END
-    END
     BLOCK "VarFileInfo"
     BEGIN
         VALUE "Translation", 0x409, 1252

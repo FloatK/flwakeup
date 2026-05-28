@@ -1,14 +1,11 @@
-import 'package:drift/drift.dart' as drift;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/constants/app_strings.dart';
 import '../../core/utils/ui_utils.dart';
 import '../../core/utils/vibrate.dart';
-import '../../data/datasources/database.dart' hide Schedule;
 import '../../data/models/schedule.dart';
 import '../providers/schedule_provider.dart';
-import '../providers/semester_provider.dart';
 
 class ScheduleEditPage extends ConsumerStatefulWidget {
   final Schedule schedule;
@@ -32,22 +29,14 @@ class _ScheduleEditPageState extends ConsumerState<ScheduleEditPage> {
     _nameController = TextEditingController(text: widget.schedule.name);
     _maxCoursesPerDay = widget.schedule.maxCoursesPerDay;
     _selectedWeekdays = widget.schedule.displayedWeekdays.toSet();
-    _startDateController = TextEditingController();
-    _totalWeeksController = TextEditingController(text: '20');
-
-    _initSemesterConfig();
-  }
-
-  void _initSemesterConfig() {
-    final semesterAsync = ref.read(activeSemesterProvider);
-    semesterAsync.whenData((semester) {
-      if (semester != null && mounted) {
-        setState(() {
-          _startDateController.text = semester.startDate.substring(0, 10);
-          _totalWeeksController.text = semester.totalWeeks.toString();
-        });
-      }
-    });
+    
+    // 从课表自身的字段初始化
+    _startDateController = TextEditingController(
+      text: widget.schedule.startDate ?? '',
+    );
+    _totalWeeksController = TextEditingController(
+      text: (widget.schedule.totalWeeks ?? 20).toString(),
+    );
   }
 
   @override
@@ -134,7 +123,7 @@ class _ScheduleEditPageState extends ConsumerState<ScheduleEditPage> {
                 ),
           ),
           const SizedBox(height: 16),
-          // -- Semester section --
+          // -- Semester section (保存到课表自身) --
           TextField(
             controller: _startDateController,
             decoration: const InputDecoration(
@@ -144,9 +133,12 @@ class _ScheduleEditPageState extends ConsumerState<ScheduleEditPage> {
             ),
             readOnly: true,
             onTap: () async {
+              final initialDate = _startDateController.text.isNotEmpty
+                  ? DateTime.tryParse(_startDateController.text) ?? DateTime.now()
+                  : DateTime.now();
               final date = await showDatePicker(
                 context: context,
-                initialDate: DateTime.now(),
+                initialDate: initialDate,
                 firstDate: DateTime(2020),
                 lastDate: DateTime(2030),
               );
@@ -196,26 +188,18 @@ class _ScheduleEditPageState extends ConsumerState<ScheduleEditPage> {
       return;
     }
 
-      // Save schedule
-      final sortedWeekdays = _selectedWeekdays.toList()..sort();
-      final updated = widget.schedule.copyWith(
-        name: name,
-        maxCoursesPerDay: _maxCoursesPerDay,
-        displayedWeekdays: sortedWeekdays,
-      );
+    // Save schedule with startDate and totalWeeks
+    final sortedWeekdays = _selectedWeekdays.toList()..sort();
+    final updated = widget.schedule.copyWith(
+      name: name,
+      maxCoursesPerDay: _maxCoursesPerDay,
+      displayedWeekdays: sortedWeekdays,
+      startDate: startDateStr,
+      totalWeeks: totalWeeks,
+    );
 
-      try {
-        await ref.read(scheduleRepositoryProvider).updateSchedule(updated);
-
-        // Save semester config — must include name (non-nullable column)
-        final currentSemester = await ref.read(activeSemesterProvider.future);
-        await ref.read(activeSemesterProvider.notifier).setConfig(
-              SemesterConfigsCompanion(
-                name: drift.Value(currentSemester?.name ?? '默认学期'),
-                startDate: drift.Value('${startDateStr}T00:00:00'),
-                totalWeeks: drift.Value(totalWeeks),
-              ),
-            );
+    try {
+      await ref.read(scheduleRepositoryProvider).updateSchedule(updated);
 
       ref.invalidate(scheduleListProvider);
       ref.invalidate(currentScheduleProvider);

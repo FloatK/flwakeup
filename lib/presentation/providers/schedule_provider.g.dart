@@ -41,7 +41,26 @@ final scheduleListProvider = FutureProvider<List<Schedule>>.internal(
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef ScheduleListRef = FutureProviderRef<List<Schedule>>;
-String _$currentScheduleHash() => r'0869ee9223933306b3b9eb1a83032ef973a6e004';
+String _$currentWeekHash() => r'917f6012dc3ae76c19a0677d0bd7de36da7e445d';
+
+/// 基于当前课表的 startDate 计算当前周次
+///
+/// Copied from [currentWeek].
+@ProviderFor(currentWeek)
+final currentWeekProvider = AutoDisposeProvider<int>.internal(
+  currentWeek,
+  name: r'currentWeekProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$currentWeekHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef CurrentWeekRef = AutoDisposeProviderRef<int>;
+String _$currentScheduleHash() => r'debc66617cf36e2f22900237a43272326297d119';
 
 /// See also [CurrentSchedule].
 @ProviderFor(CurrentSchedule)

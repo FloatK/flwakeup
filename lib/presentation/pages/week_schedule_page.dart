@@ -8,9 +8,9 @@ import '../../core/config/app_bar_config.dart';
 import '../../core/constants/app_strings.dart';
 import '../../data/datasources/database.dart' hide Course, TimeDetail, Schedule;
 import '../../data/models/course.dart';
+import '../../data/models/schedule.dart';
 import '../providers/course_provider.dart';
 import '../providers/schedule_provider.dart';
-import '../providers/semester_provider.dart';
 import '../widgets/course_detail_bottom_sheet.dart';
 import '../widgets/course_grid_widget.dart';
 import '../widgets/export_import_dialogs.dart';
@@ -65,7 +65,8 @@ class _WeekSchedulePageState extends ConsumerState<WeekSchedulePage> {
   }
 
   int _getTotalWeeks() {
-    return ref.read(activeSemesterProvider).valueOrNull?.totalWeeks ?? 16;
+    final schedule = ref.read(currentScheduleProvider).valueOrNull;
+    return schedule?.totalWeeks ?? 20;
   }
 
   int _getDisplayedWeek() {
@@ -85,19 +86,18 @@ class _WeekSchedulePageState extends ConsumerState<WeekSchedulePage> {
   @override
   Widget build(BuildContext context) {
     final courseListAsync = ref.watch(courseListProvider);
-    final semesterAsync = ref.watch(activeSemesterProvider);
     final currentWeek = ref.watch(currentWeekProvider);
     ref.watch(scheduleListProvider);
     ref.watch(currentScheduleProvider);
 
-    final semester = semesterAsync.valueOrNull;
-    final totalWeeks = semester?.totalWeeks ?? 16;
+    final schedule = ref.watch(currentScheduleProvider).valueOrNull;
+    final totalWeeks = schedule?.totalWeeks ?? 20;
     final displayedWeek = _displayedWeek;
     final isCurrentWeek = displayedWeek == currentWeek;
 
     return Scaffold(
-      appBar: _buildAppBar(semester, displayedWeek, currentWeek, isCurrentWeek),
-      body: _buildBody(semesterAsync, courseListAsync, semester, totalWeeks),
+      appBar: _buildAppBar(schedule, displayedWeek, currentWeek, isCurrentWeek),
+      body: _buildBody(courseListAsync, schedule, totalWeeks),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           Vibrate.light();
@@ -113,14 +113,14 @@ class _WeekSchedulePageState extends ConsumerState<WeekSchedulePage> {
   // ---------------------------------------------------------------------------
 
   PreferredSizeWidget _buildAppBar(
-    SemesterConfigData? semester,
+    Schedule? schedule,
     int displayedWeek,
     int currentWeek,
     bool isCurrentWeek,
   ) {
     return AppBar(
       leadingWidth: 90,
-      leading: semester != null
+      leading: schedule != null
           ? Padding(
               padding: const EdgeInsets.only(left: 8),
               child: Center(
@@ -140,11 +140,11 @@ class _WeekSchedulePageState extends ConsumerState<WeekSchedulePage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            _buildTitle(semester, displayedWeek),
+            _buildTitle(schedule, displayedWeek),
             overflow: TextOverflow.ellipsis,
             style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
           ),
-          if (semester != null && !isCurrentWeek)
+          if (schedule != null && !isCurrentWeek)
             Text(
               '(非本周)',
               style: TextStyle(
@@ -177,8 +177,8 @@ class _WeekSchedulePageState extends ConsumerState<WeekSchedulePage> {
     );
   }
 
-  String _buildTitle(SemesterConfigData? semester, int displayedWeek) {
-    if (semester == null) return AppStrings.appTitle;
+  String _buildTitle(Schedule? schedule, int displayedWeek) {
+    if (schedule == null) return AppStrings.appTitle;
     return '${AppStrings.weekLabel}$displayedWeek${AppStrings.weekSuffix}';
   }
 
@@ -192,16 +192,24 @@ class _WeekSchedulePageState extends ConsumerState<WeekSchedulePage> {
   // ---------------------------------------------------------------------------
 
   Widget _buildBody(
-    AsyncValue<SemesterConfigData?> semesterAsync,
     AsyncValue<List<Course>> courseListAsync,
-    SemesterConfigData? semester,
+    Schedule? schedule,
     int totalWeeks,
   ) {
-    return semesterAsync.when(
+    if (schedule == null) {
+      return Center(
+        child: Text(
+          AppStrings.noCourse,
+          style: Theme.of(context).textTheme.titleMedium,
+        ),
+      );
+    }
+    
+    return courseListAsync.when(
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (e, _) => _buildErrorWidget(e),
-      data: (semester) {
-        if (semester == null) {
+      data: (courses) {
+        if (courses.isEmpty) {
           return Center(
             child: Text(
               AppStrings.noCourse,
@@ -209,36 +217,23 @@ class _WeekSchedulePageState extends ConsumerState<WeekSchedulePage> {
             ),
           );
         }
-        return courseListAsync.when(
-          loading: () => const Center(child: CircularProgressIndicator()),
-          error: (e, _) => _buildErrorWidget(e),
-          data: (courses) {
-            if (courses.isEmpty) {
-              return Center(
-                child: Text(
-                  AppStrings.noCourse,
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
-              );
-            }
-            final schedule =
-                ref.read(currentScheduleProvider).valueOrNull;
-            final periodCount = schedule?.maxCoursesPerDay ?? 12;
-            return PageView.builder(
-              controller: _pageController,
-              itemCount: totalWeeks,
-              itemBuilder: (context, index) {
-                final week = index + 1;
-                return CourseGridWidget(
-                  courses: courses,
-                  displayedWeek: week,
-                  totalWeeks: totalWeeks,
-                  periodCount: periodCount,
-                  displayedWeekdays: _getDisplayedWeekdays(),
-                  semesterStart: DateTime.parse(semester.startDate),
-                  onCourseTap: (course) => _showCourseDetail(course),
-                );
-              },
+        final periodCount = schedule.maxCoursesPerDay;
+        final startDate = schedule.startDate;
+        return PageView.builder(
+          controller: _pageController,
+          itemCount: totalWeeks,
+          itemBuilder: (context, index) {
+            final week = index + 1;
+            return CourseGridWidget(
+              courses: courses,
+              displayedWeek: week,
+              totalWeeks: totalWeeks,
+              periodCount: periodCount,
+              displayedWeekdays: _getDisplayedWeekdays(),
+              semesterStart: startDate != null
+                  ? DateTime.parse(startDate)
+                  : DateTime.now(),
+              onCourseTap: (course) => _showCourseDetail(course),
             );
           },
         );
@@ -373,13 +368,14 @@ class _WeekSchedulePageState extends ConsumerState<WeekSchedulePage> {
         _showThemeSettingsOverlay(context);
       case ActionItem.swapCourse:
         final courses = ref.read(courseListProvider).valueOrNull ?? [];
-        final semester = ref.read(activeSemesterProvider).valueOrNull;
-        if (semester != null) {
+        final schedule = ref.read(currentScheduleProvider).valueOrNull;
+        final startDate = schedule?.startDate;
+        if (startDate != null) {
           SwapCourseDialog.show(
             context,
             courses,
             _displayedWeek,
-            DateTime.parse(semester.startDate),
+            DateTime.parse(startDate),
           );
         }
     }

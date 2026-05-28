@@ -43,6 +43,8 @@ class ScheduleRepositoryImpl implements ScheduleRepository {
           displayedWeekdays:
               drift.Value(jsonEncode(schedule.displayedWeekdays)),
           maxCoursesPerDay: drift.Value(schedule.maxCoursesPerDay),
+          startDate: drift.Value(schedule.startDate),
+          totalWeeks: drift.Value(schedule.totalWeeks),
         ),
       );
     } catch (e) {
@@ -69,6 +71,8 @@ class ScheduleRepositoryImpl implements ScheduleRepository {
           displayedWeekdays:
               drift.Value(jsonEncode(schedule.displayedWeekdays)),
           maxCoursesPerDay: drift.Value(schedule.maxCoursesPerDay),
+          startDate: drift.Value(schedule.startDate),
+          totalWeeks: drift.Value(schedule.totalWeeks),
         ),
       );
     } catch (e) {
@@ -111,6 +115,8 @@ class ScheduleRepositoryImpl implements ScheduleRepository {
       createdAt: row.createdAt,
       displayedWeekdays: _parseWeekdays(row.displayedWeekdays),
       maxCoursesPerDay: row.maxCoursesPerDay ?? 12,
+      startDate: row.startDate,
+      totalWeeks: row.totalWeeks ?? 20,
     );
   }
 

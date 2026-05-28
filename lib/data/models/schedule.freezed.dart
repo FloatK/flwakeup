@@ -26,7 +26,10 @@ mixin _$Schedule {
   bool get isDefault => throw _privateConstructorUsedError;
   DateTime get createdAt => throw _privateConstructorUsedError;
   List<int> get displayedWeekdays => throw _privateConstructorUsedError;
-  int get maxCoursesPerDay => throw _privateConstructorUsedError;
+  int get maxCoursesPerDay =>
+      throw _privateConstructorUsedError; // 新增：每个课表独立的开学日期和总周数
+  String? get startDate => throw _privateConstructorUsedError;
+  int get totalWeeks => throw _privateConstructorUsedError;
 
   /// Serializes this Schedule to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -50,6 +53,8 @@ abstract class $ScheduleCopyWith<$Res> {
     DateTime createdAt,
     List<int> displayedWeekdays,
     int maxCoursesPerDay,
+    String? startDate,
+    int totalWeeks,
   });
 }
 
@@ -74,6 +79,8 @@ class _$ScheduleCopyWithImpl<$Res, $Val extends Schedule>
     Object? createdAt = null,
     Object? displayedWeekdays = null,
     Object? maxCoursesPerDay = null,
+    Object? startDate = freezed,
+    Object? totalWeeks = null,
   }) {
     return _then(
       _value.copyWith(
@@ -101,6 +108,14 @@ class _$ScheduleCopyWithImpl<$Res, $Val extends Schedule>
                 ? _value.maxCoursesPerDay
                 : maxCoursesPerDay // ignore: cast_nullable_to_non_nullable
                       as int,
+            startDate: freezed == startDate
+                ? _value.startDate
+                : startDate // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            totalWeeks: null == totalWeeks
+                ? _value.totalWeeks
+                : totalWeeks // ignore: cast_nullable_to_non_nullable
+                      as int,
           )
           as $Val,
     );
@@ -123,6 +138,8 @@ abstract class _$$ScheduleImplCopyWith<$Res>
     DateTime createdAt,
     List<int> displayedWeekdays,
     int maxCoursesPerDay,
+    String? startDate,
+    int totalWeeks,
   });
 }
 
@@ -146,6 +163,8 @@ class __$$ScheduleImplCopyWithImpl<$Res>
     Object? createdAt = null,
     Object? displayedWeekdays = null,
     Object? maxCoursesPerDay = null,
+    Object? startDate = freezed,
+    Object? totalWeeks = null,
   }) {
     return _then(
       _$ScheduleImpl(
@@ -173,6 +192,14 @@ class __$$ScheduleImplCopyWithImpl<$Res>
             ? _value.maxCoursesPerDay
             : maxCoursesPerDay // ignore: cast_nullable_to_non_nullable
                   as int,
+        startDate: freezed == startDate
+            ? _value.startDate
+            : startDate // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        totalWeeks: null == totalWeeks
+            ? _value.totalWeeks
+            : totalWeeks // ignore: cast_nullable_to_non_nullable
+                  as int,
       ),
     );
   }
@@ -188,6 +215,8 @@ class _$ScheduleImpl implements _Schedule {
     required this.createdAt,
     final List<int> displayedWeekdays = const [1, 2, 3, 4, 5],
     this.maxCoursesPerDay = 12,
+    this.startDate,
+    this.totalWeeks = 20,
   }) : _displayedWeekdays = displayedWeekdays;
 
   factory _$ScheduleImpl.fromJson(Map<String, dynamic> json) =>
@@ -215,10 +244,16 @@ class _$ScheduleImpl implements _Schedule {
   @override
   @JsonKey()
   final int maxCoursesPerDay;
+  // 新增：每个课表独立的开学日期和总周数
+  @override
+  final String? startDate;
+  @override
+  @JsonKey()
+  final int totalWeeks;
 
   @override
   String toString() {
-    return 'Schedule(id: $id, name: $name, isDefault: $isDefault, createdAt: $createdAt, displayedWeekdays: $displayedWeekdays, maxCoursesPerDay: $maxCoursesPerDay)';
+    return 'Schedule(id: $id, name: $name, isDefault: $isDefault, createdAt: $createdAt, displayedWeekdays: $displayedWeekdays, maxCoursesPerDay: $maxCoursesPerDay, startDate: $startDate, totalWeeks: $totalWeeks)';
   }
 
   @override
@@ -237,7 +272,11 @@ class _$ScheduleImpl implements _Schedule {
               _displayedWeekdays,
             ) &&
             (identical(other.maxCoursesPerDay, maxCoursesPerDay) ||
-                other.maxCoursesPerDay == maxCoursesPerDay));
+                other.maxCoursesPerDay == maxCoursesPerDay) &&
+            (identical(other.startDate, startDate) ||
+                other.startDate == startDate) &&
+            (identical(other.totalWeeks, totalWeeks) ||
+                other.totalWeeks == totalWeeks));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -250,6 +289,8 @@ class _$ScheduleImpl implements _Schedule {
     createdAt,
     const DeepCollectionEquality().hash(_displayedWeekdays),
     maxCoursesPerDay,
+    startDate,
+    totalWeeks,
   );
 
   /// Create a copy of Schedule
@@ -274,6 +315,8 @@ abstract class _Schedule implements Schedule {
     required final DateTime createdAt,
     final List<int> displayedWeekdays,
     final int maxCoursesPerDay,
+    final String? startDate,
+    final int totalWeeks,
   }) = _$ScheduleImpl;
 
   factory _Schedule.fromJson(Map<String, dynamic> json) =
@@ -290,7 +333,11 @@ abstract class _Schedule implements Schedule {
   @override
   List<int> get displayedWeekdays;
   @override
-  int get maxCoursesPerDay;
+  int get maxCoursesPerDay; // 新增：每个课表独立的开学日期和总周数
+  @override
+  String? get startDate;
+  @override
+  int get totalWeeks;
 
   /// Create a copy of Schedule
   /// with the given fields replaced by the non-null parameter values.

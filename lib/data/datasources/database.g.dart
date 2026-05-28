@@ -922,6 +922,28 @@ class $SchedulesTable extends Schedules
     type: DriftSqlType.int,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _startDateMeta = const VerificationMeta(
+    'startDate',
+  );
+  @override
+  late final GeneratedColumn<String> startDate = GeneratedColumn<String>(
+    'start_date',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _totalWeeksMeta = const VerificationMeta(
+    'totalWeeks',
+  );
+  @override
+  late final GeneratedColumn<int> totalWeeks = GeneratedColumn<int>(
+    'total_weeks',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -930,6 +952,8 @@ class $SchedulesTable extends Schedules
     createdAt,
     displayedWeekdays,
     maxCoursesPerDay,
+    startDate,
+    totalWeeks,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -990,6 +1014,18 @@ class $SchedulesTable extends Schedules
         ),
       );
     }
+    if (data.containsKey('start_date')) {
+      context.handle(
+        _startDateMeta,
+        startDate.isAcceptableOrUnknown(data['start_date']!, _startDateMeta),
+      );
+    }
+    if (data.containsKey('total_weeks')) {
+      context.handle(
+        _totalWeeksMeta,
+        totalWeeks.isAcceptableOrUnknown(data['total_weeks']!, _totalWeeksMeta),
+      );
+    }
     return context;
   }
 
@@ -1023,6 +1059,14 @@ class $SchedulesTable extends Schedules
         DriftSqlType.int,
         data['${effectivePrefix}max_courses_per_day'],
       ),
+      startDate: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}start_date'],
+      ),
+      totalWeeks: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}total_weeks'],
+      ),
     );
   }
 
@@ -1039,6 +1083,8 @@ class Schedule extends DataClass implements Insertable<Schedule> {
   final DateTime createdAt;
   final String? displayedWeekdays;
   final int? maxCoursesPerDay;
+  final String? startDate;
+  final int? totalWeeks;
   const Schedule({
     required this.id,
     required this.name,
@@ -1046,6 +1092,8 @@ class Schedule extends DataClass implements Insertable<Schedule> {
     required this.createdAt,
     this.displayedWeekdays,
     this.maxCoursesPerDay,
+    this.startDate,
+    this.totalWeeks,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -1059,6 +1107,12 @@ class Schedule extends DataClass implements Insertable<Schedule> {
     }
     if (!nullToAbsent || maxCoursesPerDay != null) {
       map['max_courses_per_day'] = Variable<int>(maxCoursesPerDay);
+    }
+    if (!nullToAbsent || startDate != null) {
+      map['start_date'] = Variable<String>(startDate);
+    }
+    if (!nullToAbsent || totalWeeks != null) {
+      map['total_weeks'] = Variable<int>(totalWeeks);
     }
     return map;
   }
@@ -1077,6 +1131,8 @@ class Schedule extends DataClass implements Insertable<Schedule> {
         json['displayedWeekdays'],
       ),
       maxCoursesPerDay: serializer.fromJson<int?>(json['maxCoursesPerDay']),
+      startDate: serializer.fromJson<String?>(json['startDate']),
+      totalWeeks: serializer.fromJson<int?>(json['totalWeeks']),
     );
   }
   @override
@@ -1089,6 +1145,8 @@ class Schedule extends DataClass implements Insertable<Schedule> {
       'createdAt': serializer.toJson<DateTime>(createdAt),
       'displayedWeekdays': serializer.toJson<String?>(displayedWeekdays),
       'maxCoursesPerDay': serializer.toJson<int?>(maxCoursesPerDay),
+      'startDate': serializer.toJson<String?>(startDate),
+      'totalWeeks': serializer.toJson<int?>(totalWeeks),
     };
   }
 
@@ -1099,6 +1157,8 @@ class Schedule extends DataClass implements Insertable<Schedule> {
     DateTime? createdAt,
     Value<String?> displayedWeekdays = const Value.absent(),
     Value<int?> maxCoursesPerDay = const Value.absent(),
+    Value<String?> startDate = const Value.absent(),
+    Value<int?> totalWeeks = const Value.absent(),
   }) => Schedule(
     id: id ?? this.id,
     name: name ?? this.name,
@@ -1110,6 +1170,8 @@ class Schedule extends DataClass implements Insertable<Schedule> {
     maxCoursesPerDay: maxCoursesPerDay.present
         ? maxCoursesPerDay.value
         : this.maxCoursesPerDay,
+    startDate: startDate.present ? startDate.value : this.startDate,
+    totalWeeks: totalWeeks.present ? totalWeeks.value : this.totalWeeks,
   );
   Schedule copyWithCompanion(SchedulesCompanion data) {
     return Schedule(
@@ -1123,6 +1185,10 @@ class Schedule extends DataClass implements Insertable<Schedule> {
       maxCoursesPerDay: data.maxCoursesPerDay.present
           ? data.maxCoursesPerDay.value
           : this.maxCoursesPerDay,
+      startDate: data.startDate.present ? data.startDate.value : this.startDate,
+      totalWeeks: data.totalWeeks.present
+          ? data.totalWeeks.value
+          : this.totalWeeks,
     );
   }
 
@@ -1134,7 +1200,9 @@ class Schedule extends DataClass implements Insertable<Schedule> {
           ..write('isDefault: $isDefault, ')
           ..write('createdAt: $createdAt, ')
           ..write('displayedWeekdays: $displayedWeekdays, ')
-          ..write('maxCoursesPerDay: $maxCoursesPerDay')
+          ..write('maxCoursesPerDay: $maxCoursesPerDay, ')
+          ..write('startDate: $startDate, ')
+          ..write('totalWeeks: $totalWeeks')
           ..write(')'))
         .toString();
   }
@@ -1147,6 +1215,8 @@ class Schedule extends DataClass implements Insertable<Schedule> {
     createdAt,
     displayedWeekdays,
     maxCoursesPerDay,
+    startDate,
+    totalWeeks,
   );
   @override
   bool operator ==(Object other) =>
@@ -1157,7 +1227,9 @@ class Schedule extends DataClass implements Insertable<Schedule> {
           other.isDefault == this.isDefault &&
           other.createdAt == this.createdAt &&
           other.displayedWeekdays == this.displayedWeekdays &&
-          other.maxCoursesPerDay == this.maxCoursesPerDay);
+          other.maxCoursesPerDay == this.maxCoursesPerDay &&
+          other.startDate == this.startDate &&
+          other.totalWeeks == this.totalWeeks);
 }
 
 class SchedulesCompanion extends UpdateCompanion<Schedule> {
@@ -1167,6 +1239,8 @@ class SchedulesCompanion extends UpdateCompanion<Schedule> {
   final Value<DateTime> createdAt;
   final Value<String?> displayedWeekdays;
   final Value<int?> maxCoursesPerDay;
+  final Value<String?> startDate;
+  final Value<int?> totalWeeks;
   final Value<int> rowid;
   const SchedulesCompanion({
     this.id = const Value.absent(),
@@ -1175,6 +1249,8 @@ class SchedulesCompanion extends UpdateCompanion<Schedule> {
     this.createdAt = const Value.absent(),
     this.displayedWeekdays = const Value.absent(),
     this.maxCoursesPerDay = const Value.absent(),
+    this.startDate = const Value.absent(),
+    this.totalWeeks = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   SchedulesCompanion.insert({
@@ -1184,6 +1260,8 @@ class SchedulesCompanion extends UpdateCompanion<Schedule> {
     required DateTime createdAt,
     this.displayedWeekdays = const Value.absent(),
     this.maxCoursesPerDay = const Value.absent(),
+    this.startDate = const Value.absent(),
+    this.totalWeeks = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
        name = Value(name),
@@ -1196,6 +1274,8 @@ class SchedulesCompanion extends UpdateCompanion<Schedule> {
     Expression<DateTime>? createdAt,
     Expression<String>? displayedWeekdays,
     Expression<int>? maxCoursesPerDay,
+    Expression<String>? startDate,
+    Expression<int>? totalWeeks,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -1205,6 +1285,8 @@ class SchedulesCompanion extends UpdateCompanion<Schedule> {
       if (createdAt != null) 'created_at': createdAt,
       if (displayedWeekdays != null) 'displayed_weekdays': displayedWeekdays,
       if (maxCoursesPerDay != null) 'max_courses_per_day': maxCoursesPerDay,
+      if (startDate != null) 'start_date': startDate,
+      if (totalWeeks != null) 'total_weeks': totalWeeks,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -1216,6 +1298,8 @@ class SchedulesCompanion extends UpdateCompanion<Schedule> {
     Value<DateTime>? createdAt,
     Value<String?>? displayedWeekdays,
     Value<int?>? maxCoursesPerDay,
+    Value<String?>? startDate,
+    Value<int?>? totalWeeks,
     Value<int>? rowid,
   }) {
     return SchedulesCompanion(
@@ -1225,6 +1309,8 @@ class SchedulesCompanion extends UpdateCompanion<Schedule> {
       createdAt: createdAt ?? this.createdAt,
       displayedWeekdays: displayedWeekdays ?? this.displayedWeekdays,
       maxCoursesPerDay: maxCoursesPerDay ?? this.maxCoursesPerDay,
+      startDate: startDate ?? this.startDate,
+      totalWeeks: totalWeeks ?? this.totalWeeks,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -1250,6 +1336,12 @@ class SchedulesCompanion extends UpdateCompanion<Schedule> {
     if (maxCoursesPerDay.present) {
       map['max_courses_per_day'] = Variable<int>(maxCoursesPerDay.value);
     }
+    if (startDate.present) {
+      map['start_date'] = Variable<String>(startDate.value);
+    }
+    if (totalWeeks.present) {
+      map['total_weeks'] = Variable<int>(totalWeeks.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -1265,6 +1357,8 @@ class SchedulesCompanion extends UpdateCompanion<Schedule> {
           ..write('createdAt: $createdAt, ')
           ..write('displayedWeekdays: $displayedWeekdays, ')
           ..write('maxCoursesPerDay: $maxCoursesPerDay, ')
+          ..write('startDate: $startDate, ')
+          ..write('totalWeeks: $totalWeeks, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -2331,6 +2425,8 @@ typedef $$SchedulesTableCreateCompanionBuilder =
       required DateTime createdAt,
       Value<String?> displayedWeekdays,
       Value<int?> maxCoursesPerDay,
+      Value<String?> startDate,
+      Value<int?> totalWeeks,
       Value<int> rowid,
     });
 typedef $$SchedulesTableUpdateCompanionBuilder =
@@ -2341,6 +2437,8 @@ typedef $$SchedulesTableUpdateCompanionBuilder =
       Value<DateTime> createdAt,
       Value<String?> displayedWeekdays,
       Value<int?> maxCoursesPerDay,
+      Value<String?> startDate,
+      Value<int?> totalWeeks,
       Value<int> rowid,
     });
 
@@ -2380,6 +2478,16 @@ class $$SchedulesTableFilterComposer
 
   ColumnFilters<int> get maxCoursesPerDay => $composableBuilder(
     column: $table.maxCoursesPerDay,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get startDate => $composableBuilder(
+    column: $table.startDate,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get totalWeeks => $composableBuilder(
+    column: $table.totalWeeks,
     builder: (column) => ColumnFilters(column),
   );
 }
@@ -2422,6 +2530,16 @@ class $$SchedulesTableOrderingComposer
     column: $table.maxCoursesPerDay,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<String> get startDate => $composableBuilder(
+    column: $table.startDate,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get totalWeeks => $composableBuilder(
+    column: $table.totalWeeks,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$SchedulesTableAnnotationComposer
@@ -2452,6 +2570,14 @@ class $$SchedulesTableAnnotationComposer
 
   GeneratedColumn<int> get maxCoursesPerDay => $composableBuilder(
     column: $table.maxCoursesPerDay,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get startDate =>
+      $composableBuilder(column: $table.startDate, builder: (column) => column);
+
+  GeneratedColumn<int> get totalWeeks => $composableBuilder(
+    column: $table.totalWeeks,
     builder: (column) => column,
   );
 }
@@ -2490,6 +2616,8 @@ class $$SchedulesTableTableManager
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<String?> displayedWeekdays = const Value.absent(),
                 Value<int?> maxCoursesPerDay = const Value.absent(),
+                Value<String?> startDate = const Value.absent(),
+                Value<int?> totalWeeks = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => SchedulesCompanion(
                 id: id,
@@ -2498,6 +2626,8 @@ class $$SchedulesTableTableManager
                 createdAt: createdAt,
                 displayedWeekdays: displayedWeekdays,
                 maxCoursesPerDay: maxCoursesPerDay,
+                startDate: startDate,
+                totalWeeks: totalWeeks,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -2508,6 +2638,8 @@ class $$SchedulesTableTableManager
                 required DateTime createdAt,
                 Value<String?> displayedWeekdays = const Value.absent(),
                 Value<int?> maxCoursesPerDay = const Value.absent(),
+                Value<String?> startDate = const Value.absent(),
+                Value<int?> totalWeeks = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => SchedulesCompanion.insert(
                 id: id,
@@ -2516,6 +2648,8 @@ class $$SchedulesTableTableManager
                 createdAt: createdAt,
                 displayedWeekdays: displayedWeekdays,
                 maxCoursesPerDay: maxCoursesPerDay,
+                startDate: startDate,
+                totalWeeks: totalWeeks,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0
