@@ -219,6 +219,31 @@ class _WeekSchedulePageState extends ConsumerState<WeekSchedulePage> {
         }
         final periodCount = schedule.maxCoursesPerDay;
         final startDate = schedule.startDate;
+        if (startDate == null || startDate.isEmpty) {
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.calendar_today,
+                    size: 48,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant),
+                const SizedBox(height: 16),
+                Text(
+                  AppStrings.startDateNotSet,
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  AppStrings.startDateNotSetHint,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
+                ),
+              ],
+            ),
+          );
+        }
+        final semesterStart = DateTime.parse(startDate);
         return PageView.builder(
           controller: _pageController,
           itemCount: totalWeeks,
@@ -230,9 +255,7 @@ class _WeekSchedulePageState extends ConsumerState<WeekSchedulePage> {
               totalWeeks: totalWeeks,
               periodCount: periodCount,
               displayedWeekdays: _getDisplayedWeekdays(),
-              semesterStart: startDate != null
-                  ? DateTime.parse(startDate)
-                  : DateTime.now(),
+              semesterStart: semesterStart,
               onCourseTap: (course) => _showCourseDetail(course),
             );
           },

@@ -102,6 +102,8 @@ class AppStrings {
   static const String enterTotalWeeks = '请输入总周数';
   static const String totalWeeksRange = '总周数请输入1-30之间的数字';
   static const String selectStartDate = '请选择开学日期';
+  static const String startDateNotSet = '未设置开学日期';
+  static const String startDateNotSetHint = '请在课表设置中选择开学日期';
 
   static String maxCoursesLabel(int n) => '一天最多课程数 ($n节)';
 

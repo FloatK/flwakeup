@@ -71,11 +71,14 @@ int currentWeek(CurrentWeekRef ref) {
       final startDateStr = schedule.startDate;
       if (startDateStr == null || startDateStr.isEmpty) return 1;
       
-      final startDate = DateTime.tryParse(startDateStr);
-      if (startDate == null) return 1;
+      // 解析日期并转为本地时间（避免时区问题）
+      final parsed = DateTime.tryParse(startDateStr);
+      if (parsed == null) return 1;
+      final startDate = DateTime(parsed.year, parsed.month, parsed.day);
       
       final now = DateTime.now();
-      final diff = now.difference(startDate).inDays;
+      final today = DateTime(now.year, now.month, now.day);
+      final diff = today.difference(startDate).inDays;
       if (diff < 0) return 1;
       
       final week = diff ~/ 7 + 1;

@@ -27,7 +27,7 @@ class ThemeSettings {
     this.courseSpacing = 3.0,
     this.horizontalSpacing = 2.0,
     this.colorLightness = 1.2,
-    this.followThemeBackground = false,
+    this.followThemeBackground = true,
     this.vibrationEnabled = true,
   });
 
@@ -117,7 +117,7 @@ Future<ThemeSettings> loadThemeSettings() async {
     courseSpacing: prefs.getDouble('theme_course_spacing') ?? 3.0,
     horizontalSpacing: prefs.getDouble('theme_horizontal_spacing') ?? 2.0,
     colorLightness: prefs.getDouble('theme_color_lightness') ?? 1.2,
-    followThemeBackground: prefs.getBool('theme_follow_theme_background') ?? false,
+    followThemeBackground: prefs.getBool('theme_follow_theme_background') ?? true,
     vibrationEnabled: prefs.getBool('theme_vibration_enabled') ?? true,
   );
   Vibrate.setEnabled(settings.vibrationEnabled);

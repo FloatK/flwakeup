@@ -31,6 +31,7 @@ dependencies:
   share_plus: ^10.1.4
   file_picker: ^8.1.7
   shared_preferences: ^2.3.4
+  url_launcher: ^6.3.1
 
 dev_dependencies:
   flutter_test:
@@ -44,3 +45,6 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  assets:
+    - assets/app_icon.png
+    - assets/avatar_fallback.png

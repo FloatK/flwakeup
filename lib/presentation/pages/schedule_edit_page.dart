@@ -199,10 +199,9 @@ class _ScheduleEditPageState extends ConsumerState<ScheduleEditPage> {
     );
 
     try {
-      await ref.read(scheduleRepositoryProvider).updateSchedule(updated);
-
+      // 使用 CurrentSchedule.updateSchedule() 同时更新 DB 和 Provider 状态
+      await ref.read(currentScheduleProvider.notifier).updateSchedule(updated);
       ref.invalidate(scheduleListProvider);
-      ref.invalidate(currentScheduleProvider);
       if (context.mounted) Navigator.pop(context, true);
     } catch (e) {
       if (context.mounted) {

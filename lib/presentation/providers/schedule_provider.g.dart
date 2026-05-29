@@ -41,7 +41,7 @@ final scheduleListProvider = FutureProvider<List<Schedule>>.internal(
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef ScheduleListRef = FutureProviderRef<List<Schedule>>;
-String _$currentWeekHash() => r'917f6012dc3ae76c19a0677d0bd7de36da7e445d';
+String _$currentWeekHash() => r'10997898cd6ec802a71047b23dee52731b2e9bae';
 
 /// 基于当前课表的 startDate 计算当前周次
 ///

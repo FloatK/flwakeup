@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../core/constants/app_strings.dart';
 
@@ -17,20 +18,13 @@ class AboutPage extends StatelessWidget {
         padding: const EdgeInsets.all(24),
         children: [
           const SizedBox(height: 32),
-          // App icon
+          // App icon - 完整显示
           Center(
-            child: Container(
-              width: 80,
-              height: 80,
-              decoration: BoxDecoration(
-                color: theme.colorScheme.primaryContainer,
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Icon(
-                Icons.school,
-                size: 48,
-                color: theme.colorScheme.primary,
-              ),
+            child: Image.asset(
+              'assets/app_icon.png',
+              width: 120,
+              height: 120,
+              fit: BoxFit.contain,
             ),
           ),
           const SizedBox(height: 16),
@@ -78,31 +72,33 @@ class AboutPage extends StatelessWidget {
                   const SizedBox(height: 12),
                   Row(
                     children: [
-                      CircleAvatar(
-                        backgroundColor: theme.colorScheme.secondaryContainer,
-                        child: Text(
-                          'F',
-                          style: TextStyle(
-                            color: theme.colorScheme.secondary,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
+                      const _GitHubAvatar(
+                        url: 'https://github.com/FloatK.png',
+                        fallbackAsset: 'assets/avatar_fallback.png',
+                        radius: 24,
                       ),
                       const SizedBox(width: 12),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'FloatK',
-                            style: theme.textTheme.titleMedium,
-                          ),
-                          Text(
-                            '独立开发者',
-                            style: theme.textTheme.bodySmall?.copyWith(
-                              color: theme.colorScheme.onSurfaceVariant,
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'FloatK',
+                              style: theme.textTheme.titleMedium,
                             ),
-                          ),
-                        ],
+                            Text(
+                              '独立开发者',
+                              style: theme.textTheme.bodySmall?.copyWith(
+                                color: theme.colorScheme.onSurfaceVariant,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.code),
+                        tooltip: 'GitHub',
+                        onPressed: () => _launchGitHub(),
                       ),
                     ],
                   ),
@@ -162,6 +158,13 @@ class AboutPage extends StatelessWidget {
     );
   }
 
+  Future<void> _launchGitHub() async {
+    final uri = Uri.parse('https://github.com/FloatK');
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    }
+  }
+
   Widget _buildFeatureItem(IconData icon, String text) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
@@ -172,6 +175,29 @@ class AboutPage extends StatelessWidget {
           Text(text),
         ],
       ),
+    );
+  }
+}
+
+/// GitHub 头像组件，支持网络加载 + 本地 fallback
+class _GitHubAvatar extends StatelessWidget {
+  final String url;
+  final String fallbackAsset;
+  final double radius;
+
+  const _GitHubAvatar({
+    required this.url,
+    required this.fallbackAsset,
+    required this.radius,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return CircleAvatar(
+      radius: radius,
+      backgroundImage: AssetImage(fallbackAsset),
+      foregroundImage: NetworkImage(url),
+      onForegroundImageError: (_, __) {},
     );
   }
 }

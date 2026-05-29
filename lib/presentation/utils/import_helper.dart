@@ -1,16 +1,13 @@
-import 'package:drift/drift.dart' as drift;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../core/constants/app_strings.dart';
 import '../../core/utils/vibrate.dart';
-import '../../data/datasources/database.dart' show SemesterConfigsCompanion;
 import '../../data/models/course.dart';
 import '../../data/models/schedule.dart';
 import '../providers/course_provider.dart';
 import '../providers/schedule_provider.dart';
-import '../providers/semester_provider.dart';
 
 /// Shared import logic reused by both 教务导入 and 文本导入.
 class ImportHelper {
@@ -159,9 +156,11 @@ class _ImportChoiceDialogState extends ConsumerState<_ImportChoiceDialog> {
   }
 
   /// Shows the semester config dialog after a successful import.
-  /// Pre-fills with existing config if available.
+  /// Pre-fills with existing schedule config if available.
+  ///
+  /// After the user picks a start date, writes to Schedule.startDate.
   Future<void> _showSemesterConfigDialog() async {
-    final existing = await ref.read(activeSemesterProvider.future);
+    final currentSchedule = ref.read(currentScheduleProvider).valueOrNull;
 
     if (!mounted) return;
 
@@ -169,23 +168,29 @@ class _ImportChoiceDialogState extends ConsumerState<_ImportChoiceDialog> {
       context: context,
       barrierDismissible: false,
       builder: (_) => _SemesterConfigDialog(
-        initialDate: existing != null
-            ? DateTime.parse(existing.startDate)
+        initialDate: currentSchedule?.startDate != null
+            ? DateTime.parse(currentSchedule!.startDate!)
             : DateTime.now(),
-        initialWeeks: existing?.totalWeeks ?? 20,
+        initialWeeks: currentSchedule?.totalWeeks ?? 20,
       ),
     );
 
     if (result == null || !mounted) return;
 
-    await ref.read(activeSemesterProvider.notifier).setConfig(
-      SemesterConfigsCompanion(
-        name: drift.Value(existing?.name ?? '默认学期'),
-        startDate: drift.Value(
-            '${result.startDate.toIso8601String().split('T')[0]}T00:00:00'),
-        totalWeeks: drift.Value(result.totalWeeks),
-      ),
-    );
+    // Write to current Schedule (the active system)
+    if (currentSchedule != null) {
+      final updatedSchedule = currentSchedule.copyWith(
+        startDate: result.startDate
+            .toIso8601String()
+            .split('T')[0], // 'YYYY-MM-DD'
+        totalWeeks: result.totalWeeks,
+      );
+      await ref
+          .read(currentScheduleProvider.notifier)
+          .updateSchedule(updatedSchedule);
+      // 关键：同时刷新课表列表，确保编辑页面能读取到最新的 startDate
+      ref.invalidate(scheduleListProvider);
+    }
   }
 
   @override
