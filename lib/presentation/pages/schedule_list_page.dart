@@ -3,10 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:uuid/uuid.dart';
 
-import '../../core/constants/app_strings.dart';
 import '../../core/utils/ui_utils.dart';
 import '../../core/utils/vibrate.dart';
 import '../../data/models/schedule.dart';
+import '../../l10n/app_localizations.dart';
 import '../providers/schedule_provider.dart';
 import 'schedule_edit_page.dart';
 
@@ -15,16 +15,17 @@ class ScheduleListPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
     final schedulesAsync = ref.watch(scheduleListProvider);
     final currentAsync = ref.watch(currentScheduleProvider);
     final currentId = currentAsync.valueOrNull?.id;
 
     return Scaffold(
-      appBar: AppBar(title: const Text(AppStrings.selectSchedule)),
+      appBar: AppBar(title: Text(l10n.selectSchedule)),
       body: schedulesAsync.when(
         data: (schedules) {
           if (schedules.isEmpty) {
-            return const Center(child: Text(AppStrings.noSchedule));
+            return Center(child: Text(l10n.noSchedule));
           }
           return ListView.builder(
             padding: const EdgeInsets.all(12),
@@ -36,7 +37,7 @@ class ScheduleListPage extends ConsumerWidget {
                   child: OutlinedButton.icon(
                     onPressed: () { Vibrate.light(); _createSchedule(context, ref); },
                     icon: const Icon(Icons.add),
-                    label: const Text(AppStrings.createSchedule),
+                    label: Text(l10n.createSchedule),
                   ),
                 );
               }
@@ -64,7 +65,7 @@ class ScheduleListPage extends ConsumerWidget {
                       if (!isActive)
                         TextButton(
                           onPressed: () { Vibrate.light(); _applySchedule(context, ref, s); },
-                          child: const Text(AppStrings.apply),
+                          child: Text(l10n.apply),
                         ),
                       if (isActive)
                         const Padding(
@@ -81,11 +82,11 @@ class ScheduleListPage extends ConsumerWidget {
                             ),
                           );
                         },
-                        child: const Text(AppStrings.edit),
+                        child: Text(l10n.edit),
                       ),
                       TextButton(
                           onPressed: () { Vibrate.light(); _confirmDelete(context, ref, s); },
-                        child: Text(AppStrings.delete,
+                        child: Text(l10n.delete,
                             style: const TextStyle(color: Colors.red)),
                       ),
                     ],
@@ -96,36 +97,38 @@ class ScheduleListPage extends ConsumerWidget {
           );
         },
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => Center(child: Text('${AppStrings.loadFailed}: $e')),
+        error: (e, _) => Center(child: Text('${l10n.loadFailed}: $e')),
       ),
     );
   }
 
   void _applySchedule(BuildContext context, WidgetRef ref, Schedule s) {
     ref.read(currentScheduleProvider.notifier).switchSchedule(s);
-    showAppSnackBar(context, '${AppStrings.scheduleSwitchedTo}「${s.name}」');
+    final l10n = AppLocalizations.of(context)!;
+    showAppSnackBar(context, '${l10n.scheduleSwitchedTo}「${s.name}」');
     context.pop();
   }
 
   Future<void> _createSchedule(BuildContext context, WidgetRef ref) async {
+    final l10n = AppLocalizations.of(context)!;
     final nameCtrl = TextEditingController();
     final result = await showDialog<String>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text(AppStrings.newSchedule),
+        title: Text(l10n.newSchedule),
         content: TextField(
           controller: nameCtrl,
-          decoration: const InputDecoration(hintText: AppStrings.scheduleName),
+          decoration: InputDecoration(hintText: l10n.scheduleName),
           autofocus: true,
         ),
         actions: [
           TextButton(
             onPressed: () { Vibrate.light(); Navigator.pop(ctx); },
-            child: const Text(AppStrings.cancel),
+            child: Text(l10n.cancel),
           ),
           TextButton(
             onPressed: () { Vibrate.light(); Navigator.pop(ctx, nameCtrl.text.trim()); },
-            child: const Text(AppStrings.confirm),
+            child: Text(l10n.confirm),
           ),
         ],
       ),
@@ -141,15 +144,16 @@ class ScheduleListPage extends ConsumerWidget {
   }
 
   void _confirmDelete(BuildContext context, WidgetRef ref, Schedule s) {
+    final l10n = AppLocalizations.of(context)!;
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text(AppStrings.confirmDeleteTitle),
-        content: Text('${AppStrings.confirmDeleteMessage}「${s.name}」吗？'),
+        title: Text(l10n.confirmDeleteTitle),
+        content: Text('${l10n.confirmDeleteMessage}「${s.name}」吗？'),
         actions: [
           TextButton(
             onPressed: () { Vibrate.light(); Navigator.pop(ctx); },
-            child: const Text(AppStrings.cancel),
+            child: Text(l10n.cancel),
           ),
           TextButton(
             onPressed: () async {
@@ -166,7 +170,7 @@ class ScheduleListPage extends ConsumerWidget {
                 }
               }
             },
-            child: Text(AppStrings.delete, style: const TextStyle(color: Colors.red)),
+            child: Text(l10n.delete, style: const TextStyle(color: Colors.red)),
           ),
         ],
       ),

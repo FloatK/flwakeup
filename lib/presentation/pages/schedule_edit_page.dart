@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../core/constants/app_strings.dart';
 import '../../core/utils/ui_utils.dart';
 import '../../core/utils/vibrate.dart';
 import '../../data/models/schedule.dart';
+import '../../l10n/app_localizations.dart';
 import '../providers/schedule_provider.dart';
 
 class ScheduleEditPage extends ConsumerStatefulWidget {
@@ -22,6 +22,21 @@ class _ScheduleEditPageState extends ConsumerState<ScheduleEditPage> {
   late Set<int> _selectedWeekdays;
   late TextEditingController _startDateController;
   late TextEditingController _totalWeeksController;
+
+  AppLocalizations get l10n => AppLocalizations.of(context)!;
+
+  String _getDayLabel(int index) {
+    switch (index) {
+      case 0: return l10n.mon;
+      case 1: return l10n.tue;
+      case 2: return l10n.wed;
+      case 3: return l10n.thu;
+      case 4: return l10n.fri;
+      case 5: return l10n.sat;
+      case 6: return l10n.sun;
+      default: return '';
+    }
+  }
 
   @override
   void initState() {
@@ -51,11 +66,11 @@ class _ScheduleEditPageState extends ConsumerState<ScheduleEditPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(AppStrings.editSchedule),
+        title: Text(l10n.editSchedule),
         actions: [
           TextButton(
             onPressed: () { Vibrate.light(); _save(); },
-            child: const Text(AppStrings.save),
+            child: Text(l10n.save),
           ),
         ],
       ),
@@ -65,14 +80,14 @@ class _ScheduleEditPageState extends ConsumerState<ScheduleEditPage> {
           // -- Schedule section --
           TextField(
             controller: _nameController,
-            decoration: const InputDecoration(
-              labelText: AppStrings.scheduleName,
-              border: OutlineInputBorder(),
+            decoration: InputDecoration(
+              labelText: l10n.scheduleName,
+              border: const OutlineInputBorder(),
             ),
           ),
           const SizedBox(height: 24),
           Text(
-            AppStrings.maxCoursesLabel(_maxCoursesPerDay),
+            l10n.maxCoursesLabel(_maxCoursesPerDay),
             style: Theme.of(context).textTheme.titleSmall,
           ),
           Slider(
@@ -85,7 +100,7 @@ class _ScheduleEditPageState extends ConsumerState<ScheduleEditPage> {
           ),
           const SizedBox(height: 24),
           Text(
-            AppStrings.displayedWeekdays,
+            l10n.displayedWeekdays,
             style: Theme.of(context).textTheme.titleSmall,
           ),
           const SizedBox(height: 8),
@@ -96,7 +111,7 @@ class _ScheduleEditPageState extends ConsumerState<ScheduleEditPage> {
               final day = i + 1;
               final selected = _selectedWeekdays.contains(day);
               return FilterChip(
-                label: Text(AppStrings.dayLabels[i]),
+                label: Text(_getDayLabel(i)),
                 selected: selected,
                 onSelected: (v) {
                   setState(() {
@@ -117,7 +132,7 @@ class _ScheduleEditPageState extends ConsumerState<ScheduleEditPage> {
           const Divider(height: 1),
           const SizedBox(height: 16),
           Text(
-            AppStrings.semesterSettingsLabel,
+            l10n.semesterSettingsLabel,
             style: Theme.of(context).textTheme.titleMedium?.copyWith(
                   fontWeight: FontWeight.w600,
                 ),
@@ -126,10 +141,10 @@ class _ScheduleEditPageState extends ConsumerState<ScheduleEditPage> {
           // -- Semester section (保存到课表自身) --
           TextField(
             controller: _startDateController,
-            decoration: const InputDecoration(
-              labelText: AppStrings.startDate,
+            decoration: InputDecoration(
+              labelText: l10n.startDate,
               hintText: 'YYYY-MM-DD',
-              border: OutlineInputBorder(),
+              border: const OutlineInputBorder(),
             ),
             readOnly: true,
             onTap: () async {
@@ -151,9 +166,9 @@ class _ScheduleEditPageState extends ConsumerState<ScheduleEditPage> {
           const SizedBox(height: 16),
           TextField(
             controller: _totalWeeksController,
-            decoration: const InputDecoration(
-              labelText: AppStrings.totalWeeks,
-              border: OutlineInputBorder(),
+            decoration: InputDecoration(
+              labelText: l10n.totalWeeks,
+              border: const OutlineInputBorder(),
             ),
             keyboardType: TextInputType.number,
           ),
@@ -167,24 +182,24 @@ class _ScheduleEditPageState extends ConsumerState<ScheduleEditPage> {
     // Validate schedule fields
     final name = _nameController.text.trim();
     if (name.isEmpty) {
-      showAppSnackBar(context, AppStrings.enterScheduleName, isError: true);
+      showAppSnackBar(context, l10n.enterScheduleName, isError: true);
       return;
     }
 
     final totalWeeksStr = _totalWeeksController.text.trim();
     if (totalWeeksStr.isEmpty) {
-      showAppSnackBar(context, AppStrings.enterTotalWeeks, isError: true);
+      showAppSnackBar(context, l10n.enterTotalWeeks, isError: true);
       return;
     }
     final totalWeeks = int.tryParse(totalWeeksStr);
     if (totalWeeks == null || totalWeeks < 1 || totalWeeks > 30) {
-      showAppSnackBar(context, AppStrings.totalWeeksRange, isError: true);
+      showAppSnackBar(context, l10n.totalWeeksRange, isError: true);
       return;
     }
 
     final startDateStr = _startDateController.text.trim();
     if (startDateStr.isEmpty) {
-      showAppSnackBar(context, AppStrings.selectStartDate, isError: true);
+      showAppSnackBar(context, l10n.selectStartDate, isError: true);
       return;
     }
 
@@ -205,7 +220,7 @@ class _ScheduleEditPageState extends ConsumerState<ScheduleEditPage> {
       if (context.mounted) Navigator.pop(context, true);
     } catch (e) {
       if (context.mounted) {
-        showAppSnackBar(context, '${AppStrings.saveFailed}: $e', isError: true);
+        showAppSnackBar(context, '${l10n.saveFailed}: $e', isError: true);
       }
     }
   }

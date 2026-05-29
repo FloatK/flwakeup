@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../core/constants/app_strings.dart';
 import '../../core/utils/ui_utils.dart';
 import '../../core/utils/vibrate.dart';
+import '../../l10n/app_localizations.dart';
 import '../providers/theme_provider.dart';
 
 class SettingsPage extends ConsumerStatefulWidget {
@@ -15,6 +15,8 @@ class SettingsPage extends ConsumerStatefulWidget {
 }
 
 class _SettingsPageState extends ConsumerState<SettingsPage> {
+  AppLocalizations get l10n => AppLocalizations.of(context)!;
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -22,7 +24,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('设置'),
+        title: Text(l10n.settings),
       ),
       body: ListView(
         children: [
@@ -30,12 +32,12 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
           // Interaction settings
           _buildSection(
             context,
-            title: '交互',
+            title: l10n.interaction,
             children: [
               SwitchListTile(
                 secondary: const Icon(Icons.vibration),
-                title: const Text('振动反馈'),
-                subtitle: const Text('点击时给予轻微振动反馈'),
+                title: Text(l10n.vibration),
+                subtitle: Text(l10n.vibrationSubtitle),
                 value: settings.vibrationEnabled,
                 onChanged: (v) {
                   ref.read(themeSettingsProvider.notifier).state =
@@ -50,11 +52,11 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
           // Other settings
           _buildSection(
             context,
-            title: '其他',
+            title: l10n.others,
             children: [
               ListTile(
                 leading: const Icon(Icons.info_outline),
-                title: const Text(AppStrings.about),
+                title: Text(l10n.about),
                 trailing: const Icon(Icons.chevron_right),
                 onTap: () {
                   Vibrate.light();
@@ -67,7 +69,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                   color: theme.colorScheme.error,
                 ),
                 title: Text(
-                  AppStrings.clearCache,
+                  l10n.clearCache,
                   style: TextStyle(color: theme.colorScheme.error),
                 ),
                 onTap: () {
@@ -112,19 +114,19 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text(AppStrings.clearCache),
-        content: const Text(AppStrings.confirmClearCache),
+        title: Text(l10n.clearCache),
+        content: Text(l10n.confirmClearCache),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text(AppStrings.cancel),
+            child: Text(l10n.cancel),
           ),
           TextButton(
             onPressed: () {
               Navigator.pop(ctx);
-              showAppSnackBar(context, AppStrings.cacheCleared);
+              showAppSnackBar(context, l10n.cacheCleared);
             },
-            child: const Text(AppStrings.confirm),
+            child: Text(l10n.confirm),
           ),
         ],
       ),

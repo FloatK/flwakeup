@@ -5,12 +5,12 @@ import 'package:uuid/uuid.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 import '../../core/constants/app_colors.dart';
-import '../../core/constants/app_strings.dart';
 import '../../core/utils/edu_system_webview_controller.dart';
 import '../../core/utils/edu_url_store.dart';
 import '../../core/utils/ui_utils.dart';
 import '../../core/utils/vibrate.dart';
 import '../../data/datasources/edu_parser.dart';
+import '../../l10n/app_localizations.dart';
 import '../utils/import_helper.dart';
 import '../widgets/edu_system_selection_dialog.dart';
 
@@ -28,6 +28,8 @@ class _ImportSchedulePageState extends ConsumerState<ImportSchedulePage> {
   final _pasteController = TextEditingController();
 
   bool get _isWebViewSupported => _eduController != null;
+
+  AppLocalizations get l10n => AppLocalizations.of(context)!;
 
   @override
   void initState() {
@@ -66,7 +68,7 @@ class _ImportSchedulePageState extends ConsumerState<ImportSchedulePage> {
     if (text.isEmpty) return;
     final uri = Uri.tryParse(text);
     if (uri == null || !uri.hasScheme) {
-      showAppSnackBar(context, AppStrings.enterValidUrl, isError: true);
+      showAppSnackBar(context, l10n.enterValidUrl, isError: true);
       return;
     }
     _eduController!.loadUrl(text);
@@ -78,7 +80,7 @@ class _ImportSchedulePageState extends ConsumerState<ImportSchedulePage> {
     final pastedHtml =
         _isWebViewSupported ? null : _pasteController.text.trim();
     if (!_isWebViewSupported && (pastedHtml == null || pastedHtml.isEmpty)) {
-      showAppSnackBar(context, '请先粘贴 HTML 源代码', isError: true);
+      showAppSnackBar(context, l10n.pasteHtmlFirst, isError: true);
       return;
     }
 
@@ -103,13 +105,13 @@ class _ImportSchedulePageState extends ConsumerState<ImportSchedulePage> {
       if (!mounted) return;
 
       if (parsed.isEmpty) {
-        showAppSnackBar(context, AppStrings.noCoursesFound);
+        showAppSnackBar(context, l10n.noCoursesFound);
       } else {
         _showImportDialog(parsed);
       }
     } catch (e) {
       if (mounted) {
-        showAppSnackBar(context, '${AppStrings.parseFailed}: $e', isError: true);
+        showAppSnackBar(context, '${l10n.parseFailed}: $e', isError: true);
       }
     }
   }
@@ -150,7 +152,7 @@ class _ImportSchedulePageState extends ConsumerState<ImportSchedulePage> {
       },
       onComplete: () {
         if (mounted) {
-          showAppSnackBar(context, AppStrings.importCourseCount(courses.length));
+          showAppSnackBar(context, l10n.importCourseCount(courses.length));
           if (mounted) context.pop();
         }
       },
@@ -172,12 +174,12 @@ class _ImportSchedulePageState extends ConsumerState<ImportSchedulePage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text(AppStrings.importFromEdu),
+        title: Text(l10n.importFromEdu),
         actions: [
           TextButton.icon(
             onPressed: isParsing ? null : () { Vibrate.light(); _parseSchedule(); },
             icon: const Icon(Icons.download, size: 18),
-            label: const Text(AppStrings.fetchSchedule),
+            label: Text(l10n.fetchSchedule),
           ),
         ],
       ),
@@ -202,7 +204,7 @@ class _ImportSchedulePageState extends ConsumerState<ImportSchedulePage> {
                 child: TextField(
                   controller: _urlController,
                   decoration: InputDecoration(
-                    hintText: AppStrings.eduSystemUrlHint,
+                    hintText: l10n.eduSystemUrlHint,
                     isDense: true,
                     contentPadding: const EdgeInsets.symmetric(
                         horizontal: 12, vertical: 10),
@@ -236,13 +238,13 @@ class _ImportSchedulePageState extends ConsumerState<ImportSchedulePage> {
               if (isParsing)
                 Container(
                   color: Colors.black26,
-                  child: const Center(
+                  child: Center(
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         CircularProgressIndicator(color: Colors.white),
                         SizedBox(height: 8),
-                        Text(AppStrings.parsing,
+                        Text(l10n.parsing,
                             style: TextStyle(color: Colors.white)),
                       ],
                     ),
@@ -270,13 +272,13 @@ class _ImportSchedulePageState extends ConsumerState<ImportSchedulePage> {
               borderRadius: BorderRadius.circular(8),
               border: Border.all(color: Colors.amber.withAlpha(100)),
             ),
-            child: const Row(
+            child: Row(
               children: [
                 Icon(Icons.info_outline, color: Colors.amber, size: 20),
                 SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    AppStrings.desktopPasteHint,
+                    l10n.desktopPasteHint,
                     style: TextStyle(fontSize: 13),
                   ),
                 ),
@@ -287,7 +289,7 @@ class _ImportSchedulePageState extends ConsumerState<ImportSchedulePage> {
           TextField(
             controller: _urlController,
             decoration: InputDecoration(
-              labelText: AppStrings.eduUrlSaveLabel,
+              labelText: l10n.eduUrlSaveLabel,
               isDense: true,
               contentPadding:
                   const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
@@ -306,7 +308,7 @@ class _ImportSchedulePageState extends ConsumerState<ImportSchedulePage> {
               expands: true,
               textAlignVertical: TextAlignVertical.top,
               decoration: InputDecoration(
-                hintText: AppStrings.pasteHtmlHint,
+                hintText: l10n.pasteHtmlHint,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
                 ),
@@ -322,7 +324,7 @@ class _ImportSchedulePageState extends ConsumerState<ImportSchedulePage> {
                   children: [
                     const CircularProgressIndicator(),
                     const SizedBox(height: 4),
-                    Text(AppStrings.parsing),
+                    Text(l10n.parsing),
                   ],
                 ),
               ),

@@ -1,0 +1,315 @@
+{
+  "@@locale": "zh",
+  "appTitle": "Flass",
+  "addCourse": "添加课程",
+  "editCourse": "编辑课程",
+  "semesterSettings": "学期设置",
+  "weekLabel": "第",
+  "weekSuffix": "周",
+  "noCourse": "暂无课程",
+  "allWeeks": "全选",
+  "singleWeek": "单周",
+  "doubleWeek": "双周",
+  "mon": "周一",
+  "tue": "周二",
+  "wed": "周三",
+  "thu": "周四",
+  "fri": "周五",
+  "sat": "周六",
+  "sun": "周日",
+  "edit": "编辑",
+  "delete": "删除",
+  "cancel": "取消",
+  "confirm": "确定",
+  "confirmDeleteTitle": "确认删除",
+  "confirmDeleteMessage": "确定要删除",
+  "teacherLabel": "教师",
+  "locationLabel": "地点",
+  "timeSchedule": "上课时间",
+  "retry": "重试",
+  "loadFailed": "加载失败",
+  "everyWeek": "每周",
+  "importSchedule": "导入课表",
+  "exportSchedule": "导出课表",
+  "importFromEdu": "从教务系统导入",
+  "parseSchedule": "抓取课表",
+  "selectCourses": "选择课程",
+  "batchSave": "批量保存",
+  "parsing": "解析中...",
+  "parseSuccess": "解析成功",
+  "parseFailed": "解析失败",
+  "unsupportedPlatform": "当前平台暂不支持此功能",
+  "manageSchedules": "管理课表",
+  "newSchedule": "新建课表",
+  "renameSchedule": "重命名",
+  "scheduleName": "课表名称",
+  "defaultSchedule": "默认课表",
+  "cannotDeleteDefault": "默认课表不可删除",
+  "scheduleSwitched": "已切换课表",
+  "importJsonHint": "粘贴 JSON 内容...",
+  "basicInfo": "基本信息",
+  "courseName": "课程名称",
+  "enterCourseName": "请输入课程名称",
+  "teacher": "授课教师",
+  "enterTeacher": "请输入授课教师",
+  "locationOptional": "上课地点（选填）",
+  "courseColor": "课程颜色",
+  "timeSettings": "时间设置",
+  "weekday": "星期",
+  "startPeriod": "开始节次",
+  "duration": "持续",
+  "addTimeSlot": "添加时间段",
+  "save": "保存",
+  "courseUpdated": "课程已更新",
+  "courseAdded": "课程已添加",
+  "saveFailed": "保存失败",
+  "timeSlotLabel": "时间段 {index}",
+  "@timeSlotLabel": {
+    "placeholders": {
+      "index": { "type": "int" }
+    }
+  },
+  "periodLabel": "第{n}节",
+  "@periodLabel": {
+    "placeholders": {
+      "n": { "type": "int" }
+    }
+  },
+  "durationLabel": "{n}节",
+  "@durationLabel": {
+    "placeholders": {
+      "n": { "type": "int" }
+    }
+  },
+  "selectWeeksHint": "时间段 {index} 请选择上课周次",
+  "@selectWeeksHint": {
+    "placeholders": {
+      "index": { "type": "int" }
+    }
+  },
+  "editSchedule": "编辑课表",
+  "maxCoursesPerDay": "一天最多课程数",
+  "displayedWeekdays": "每周显示的天数",
+  "semesterSettingsLabel": "学期设置",
+  "startDate": "开学日期",
+  "totalWeeks": "总周数",
+  "enterScheduleName": "请输入课表名称",
+  "enterTotalWeeks": "请输入总周数",
+  "totalWeeksRange": "总周数请输入1-30之间的数字",
+  "selectStartDate": "请选择开学日期",
+  "startDateNotSet": "未设置开学日期",
+  "startDateNotSetHint": "请在课表设置中选择开学日期",
+  "maxCoursesLabel": "一天最多课程数 ({n}节)",
+  "@maxCoursesLabel": {
+    "placeholders": {
+      "n": { "type": "int" }
+    }
+  },
+  "fetchSchedule": "抓取课表",
+  "enterValidUrl": "请输入有效的 URL（如 http://...）",
+  "noCoursesFound": "未找到课程数据，请确认已登录并进入课表页面",
+  "importSuccess": "成功导入",
+  "coursesUnit": "门课程",
+  "confirmImport": "确认导入",
+  "scheduleNameHint": "留空则自动生成",
+  "eduSystemUrlHint": "教务系统课表页面 URL",
+  "desktopPasteHint": "桌面端暂不支持内置浏览器。请在系统浏览器中打开教务系统页面，查看网页源代码并粘贴到下方。",
+  "eduUrlSaveLabel": "教务系统 URL（用于保存）",
+  "pasteHtmlHint": "在此粘贴教务系统课表页面的 HTML 源代码\n\n步骤：\n1. 在浏览器中打开教务系统并进入课表页面\n2. 右键 → 查看网页源代码（或 Ctrl+U）\n3. 全选复制 → 粘贴到这里\n4. 点击右上角「抓取课表」",
+  "importCourseCount": "成功导入 {count} 门课程",
+  "@importCourseCount": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "parseFailedMsg": "{error}",
+  "@parseFailedMsg": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+  "shareSchedule": "分享课表",
+  "chooseExportMethod": "选择导出方式：",
+  "copyCompactCode": "复制紧凑码",
+  "shareFile": "分享文件",
+  "copiedCompactCode": "已复制",
+  "characters": "字符",
+  "copyHint": "打开从文本导入粘贴即可",
+  "shareFailed": "分享失败",
+  "importFromText": "从文本导入",
+  "pasteCompactHint": "粘贴包含「紧凑码」的内容...",
+  "pasteFromClipboard": "从剪贴板粘贴",
+  "parse": "解析",
+  "invalidFormat": "无效的格式，请检查内容",
+  "importFailed": "导入失败",
+  "clearCache": "清除缓存",
+  "confirmClearCache": "确定要清除缓存吗？",
+  "cacheCleared": "缓存已清除（占位）",
+  "about": "关于",
+  "copiedMessage": "已复制 ({length} 字符)，打开从文本导入粘贴即可",
+  "@copiedMessage": {
+    "placeholders": {
+      "length": { "type": "int" }
+    }
+  },
+  "selectSchedule": "选择课表",
+  "noSchedule": "暂无课表",
+  "createSchedule": "新建课表",
+  "apply": "应用",
+  "scheduleSwitchedTo": "已切换到",
+  "themeSettings": "主题设置",
+  "followSystemDarkMode": "跟随系统深色模式",
+  "followSystemSubtitle": "开启后自动跟随系统亮暗模式",
+  "themeMode": "主题模式",
+  "lightMode": "亮色",
+  "darkMode": "深色",
+  "themeColor": "主题颜色",
+  "courseCornerRadius": "课程圆角半径",
+  "courseBlockHeight": "课程块高度",
+  "courseSpacing": "课程间距",
+  "columnSpacing": "列间距",
+  "colorLightness": "颜色深浅",
+  "close": "关闭",
+  "pxLabel": "{label} ({value}px)",
+  "@pxLabel": {
+    "placeholders": {
+      "label": { "type": "String" },
+      "value": { "type": "int" }
+    }
+  },
+  "lightnessLabel": "颜色深浅 ({value}x)",
+  "@lightnessLabel": {
+    "placeholders": {
+      "value": { "type": "String" }
+    }
+  },
+  "configAppBarButtons": "配置 AppBar 按钮",
+  "resetDefault": "重置默认",
+  "config": "配置",
+  "maxItemsHint": "最多选择",
+  "more": "更多",
+  "weekSliderLabel": "第 {week} 周",
+  "@weekSliderLabel": {
+    "placeholders": {
+      "week": { "type": "int" }
+    }
+  },
+  "maxAppBarItemsHint": "选择要在顶栏显示的按钮（最多 {max} 个）",
+  "@maxAppBarItemsHint": {
+    "placeholders": {
+      "max": { "type": "int" }
+    }
+  },
+  "importing": "导入中...",
+  "chooseImportMethod": "选择导入方式：",
+  "overwriteCurrentSchedule": "覆盖当前课表",
+  "createNewScheduleAndImport": "新建课表并导入",
+  "courseCountTitle": "共 {count} 门课程",
+  "@courseCountTitle": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "importFailedMsg": "{error}",
+  "@importFailedMsg": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+  "defaultScheduleName": "课表1",
+  "importedScheduleName": "导入课表 {month}月{day}日 {time}",
+  "@importedScheduleName": {
+    "placeholders": {
+      "month": { "type": "int" },
+      "day": { "type": "int" },
+      "time": { "type": "String" }
+    }
+  },
+  "settings": "设置",
+  "interaction": "交互",
+  "vibration": "振动反馈",
+  "vibrationSubtitle": "点击时给予轻微振动反馈",
+  "others": "其他",
+  "setSemester": "设置学期",
+  "skip": "跳过",
+  "selectEduSystem": "选择教务系统",
+  "backgroundFollowsTheme": "背景颜色跟随主题色",
+  "backgroundFollowsThemeSubtitle": "开启后底板背景色跟随主题主色变化",
+  "notCurrentWeek": "(非本周)",
+  "dateMonthDay": "{month}月{day}日",
+  "@dateMonthDay": {
+    "placeholders": {
+      "month": { "type": "int" },
+      "day": { "type": "int" }
+    }
+  },
+  "courseTable": "课程表",
+  "developer": "开发者",
+  "independentDeveloper": "独立开发者",
+  "aboutApp": "关于应用",
+  "appDescription": "Flass 是一款简洁高效的课程表应用，支持教务系统导入、紧凑码分享、多课表管理等功能。",
+  "mainFeatures": "主要功能",
+  "featureEduImport": "教务系统导入",
+  "featureCompactShare": "紧凑码分享",
+  "featureMultiSchedule": "多课表管理",
+  "featureThemeCustom": "主题自定义",
+  "featureWeekView": "周视图展示",
+  "swapCourse": "调课",
+  "swapCourseDescription": "将一天的课程移动到另一天（会覆盖目标日期的课程）",
+  "swapFrom": "从",
+  "swapTo": "到",
+  "swapMoveCount": "将移动 {count} 门课程",
+  "@swapMoveCount": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "swapConfirm": "确认调课",
+  "noCourseOnDate": "{date}没有课程",
+  "@noCourseOnDate": {
+    "placeholders": {
+      "date": { "type": "String" }
+    }
+  },
+  "swapSuccess": "已将{source}的课程移动到{target}",
+  "@swapSuccess": {
+    "placeholders": {
+      "source": { "type": "String" },
+      "target": { "type": "String" }
+    }
+  },
+  "previousWeek": "上一周",
+  "nextWeek": "下一周",
+  "returnCurrentWeek": "返回当前周",
+  "theme": "主题",
+  "configToolbar": "配置工具栏",
+  "exportCopyMessage": "将该条消息复制，点击从文本导入即可导入课表。\n「{compact}」",
+  "@exportCopyMessage": {
+    "placeholders": {
+      "compact": { "type": "String" }
+    }
+  },
+  "scheduleData": "课表数据",
+  "pasteHtmlFirst": "请先粘贴 HTML 源代码",
+  "loadFailedWith": "加载失败: {error}",
+  "@loadFailedWith": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+  "dateYearMonthDay": "{year}年{month}月{day}日",
+  "@dateYearMonthDay": {
+    "placeholders": {
+      "year": { "type": "int" },
+      "month": { "type": "int" },
+      "day": { "type": "int" }
+    }
+  },
+  "weekdayCourseCount": "{weekday} · {count}门课程",
+  "@weekdayCourseCount": {
+    "placeholders": {
+      "weekday": { "type": "String" },
+      "count": { "type": "int" }
+    }
+  }
+}

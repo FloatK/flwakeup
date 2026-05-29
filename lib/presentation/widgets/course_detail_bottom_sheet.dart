@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../core/constants/app_strings.dart';
 import '../../core/utils/vibrate.dart';
 import '../../core/utils/week_utils.dart';
 import '../../data/models/course.dart';
+import '../../l10n/app_localizations.dart';
 
 /// 课程详情底部弹窗。
 ///
@@ -37,6 +37,7 @@ class CourseDetailBottomSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return DraggableScrollableSheet(
       initialChildSize: 0.5,
       minChildSize: 0.3,
@@ -70,17 +71,17 @@ class CourseDetailBottomSheet extends StatelessWidget {
             // Teacher & location
             _buildInfoRow(
               Icons.person_outline,
-              '${AppStrings.teacherLabel}: ${course.teacher}',
+              '${l10n.teacherLabel}: ${course.teacher}',
             ),
             if (course.location != null && course.location!.isNotEmpty)
               _buildInfoRow(
                 Icons.location_on_outlined,
-                '${AppStrings.locationLabel}: ${course.location}',
+                '${l10n.locationLabel}: ${course.location}',
               ),
             const Divider(height: 24),
             // Time schedule header
             Text(
-              AppStrings.timeSchedule,
+              l10n.timeSchedule,
               style: Theme.of(context).textTheme.titleSmall?.copyWith(
                     fontWeight: FontWeight.w600,
                   ),
@@ -90,7 +91,7 @@ class CourseDetailBottomSheet extends StatelessWidget {
             ...course.timeDetails.map(
               (td) => Padding(
                 padding: const EdgeInsets.only(bottom: 8),
-                child: Text(_formatTimeDetail(td)),
+                child: Text(_formatTimeDetail(l10n, td)),
               ),
             ),
             const Divider(height: 24),
@@ -105,7 +106,7 @@ class CourseDetailBottomSheet extends StatelessWidget {
                       context.push('/edit/${course.id}');
                     },
                     icon: const Icon(Icons.edit),
-                    label: const Text(AppStrings.edit),
+                    label: Text(l10n.edit),
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -117,7 +118,7 @@ class CourseDetailBottomSheet extends StatelessWidget {
                       onDelete?.call();
                     },
                     icon: const Icon(Icons.delete),
-                    label: const Text(AppStrings.delete),
+                    label: Text(l10n.delete),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Theme.of(context).colorScheme.error,
                       foregroundColor: Theme.of(context).colorScheme.onError,
@@ -145,23 +146,36 @@ class CourseDetailBottomSheet extends StatelessWidget {
     );
   }
 
-  String _formatTimeDetail(TimeDetail td) {
-    final dayLabel = AppStrings.dayLabel(td.dayOfWeek);
+  String _formatTimeDetail(AppLocalizations l10n, TimeDetail td) {
+    final dayLabel = _getDayLabel(l10n, td.dayOfWeek);
     final endPeriod = td.startPeriod + td.duration - 1;
     final periodRange =
         td.duration > 1 ? '${td.startPeriod}-$endPeriod' : '${td.startPeriod}';
     final modeStr = td.singleOrDouble == 'single'
-        ? AppStrings.singleWeek
+        ? l10n.singleWeek
         : td.singleOrDouble == 'double'
-            ? AppStrings.doubleWeek
+            ? l10n.doubleWeek
             : '';
     final weeksStr = WeekUtils.formatWeeks(td.weeks);
 
     final parts = [
-      '$dayLabel ${AppStrings.weekLabel}$periodRange${AppStrings.weekSuffix}',
+      '$dayLabel ${l10n.weekLabel}$periodRange${l10n.weekSuffix}',
       weeksStr,
       if (modeStr.isNotEmpty) modeStr,
     ];
     return parts.join(' | ');
+  }
+
+  String _getDayLabel(AppLocalizations l10n, int dayOfWeek) {
+    switch (dayOfWeek) {
+      case 1: return l10n.mon;
+      case 2: return l10n.tue;
+      case 3: return l10n.wed;
+      case 4: return l10n.thu;
+      case 5: return l10n.fri;
+      case 6: return l10n.sat;
+      case 7: return l10n.sun;
+      default: return '';
+    }
   }
 }

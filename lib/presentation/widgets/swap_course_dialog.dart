@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../core/constants/app_strings.dart';
 import '../../core/utils/ui_utils.dart';
 import '../../core/utils/vibrate.dart';
 import '../../data/models/course.dart';
+import '../../l10n/app_localizations.dart';
 import '../providers/course_provider.dart';
 
 /// 调课对话框：将某天的课程移动到另一天。
@@ -43,6 +43,8 @@ class SwapCourseDialog extends ConsumerStatefulWidget {
 class _SwapCourseDialogState extends ConsumerState<SwapCourseDialog> {
   late DateTime _sourceDate;
   late DateTime _targetDate;
+
+  AppLocalizations get l10n => AppLocalizations.of(context)!;
 
   @override
   void initState() {
@@ -97,7 +99,7 @@ class _SwapCourseDialogState extends ConsumerState<SwapCourseDialog> {
     final sourceCourses = _getCoursesForDate(_sourceDate);
 
     if (sourceCourses.isEmpty) {
-      showAppSnackBar(context, '${_formatDate(_sourceDate)}没有课程', isError: true);
+      showAppSnackBar(context, l10n.noCourseOnDate(_formatDate(_sourceDate)), isError: true);
       return;
     }
 
@@ -134,7 +136,7 @@ class _SwapCourseDialogState extends ConsumerState<SwapCourseDialog> {
     if (mounted) {
       Navigator.pop(context);
       showAppSnackBar(context,
-          '已将${_formatDate(_sourceDate)}的课程移动到${_formatDate(_targetDate)}');
+          l10n.swapSuccess(_formatDate(_sourceDate), _formatDate(_targetDate)));
     }
   }
 
@@ -146,7 +148,16 @@ class _SwapCourseDialogState extends ConsumerState<SwapCourseDialog> {
 
   String _getWeekdayName(int weekday, Locale locale) {
     if (locale.languageCode == 'zh') {
-      return AppStrings.dayLabels[weekday - 1];
+      switch (weekday) {
+        case 1: return l10n.mon;
+        case 2: return l10n.tue;
+        case 3: return l10n.wed;
+        case 4: return l10n.thu;
+        case 5: return l10n.fri;
+        case 6: return l10n.sat;
+        case 7: return l10n.sun;
+        default: return '';
+      }
     }
     const englishDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
     return englishDays[weekday - 1];
@@ -158,20 +169,20 @@ class _SwapCourseDialogState extends ConsumerState<SwapCourseDialog> {
     final targetCourses = _getCoursesForDate(_targetDate);
 
     return AlertDialog(
-      title: const Text('调课'),
+      title: Text(l10n.swapCourse),
       content: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(
-              '将一天的课程移动到另一天（会覆盖目标日期的课程）',
+              l10n.swapCourseDescription,
               style: Theme.of(context).textTheme.bodySmall,
             ),
             const SizedBox(height: 24),
             // Source date
             _buildDateSelector(
-              label: '从',
+              label: l10n.swapFrom,
               date: _sourceDate,
               courseCount: sourceCourses.length,
               onTap: () {
@@ -187,7 +198,7 @@ class _SwapCourseDialogState extends ConsumerState<SwapCourseDialog> {
             const SizedBox(height: 16),
             // Target date
             _buildDateSelector(
-              label: '到',
+              label: l10n.swapTo,
               date: _targetDate,
               courseCount: targetCourses.length,
               onTap: () {
@@ -198,7 +209,7 @@ class _SwapCourseDialogState extends ConsumerState<SwapCourseDialog> {
             if (sourceCourses.isNotEmpty) ...[
               const SizedBox(height: 20),
               Text(
-                '将移动 ${sourceCourses.length} 门课程',
+                l10n.swapMoveCount(sourceCourses.length),
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
                       color: Theme.of(context).colorScheme.primary,
                     ),
@@ -214,7 +225,7 @@ class _SwapCourseDialogState extends ConsumerState<SwapCourseDialog> {
             Vibrate.light();
             Navigator.pop(context);
           },
-          child: const Text(AppStrings.cancel),
+          child: Text(l10n.cancel),
         ),
         ElevatedButton(
           onPressed: _getDayOfWeek(_sourceDate) == _getDayOfWeek(_targetDate)
@@ -223,7 +234,7 @@ class _SwapCourseDialogState extends ConsumerState<SwapCourseDialog> {
                   Vibrate.light();
                   _swapCourses();
                 },
-          child: const Text('确认调课'),
+          child: Text(l10n.swapConfirm),
         ),
       ],
     );
@@ -267,11 +278,11 @@ class _SwapCourseDialogState extends ConsumerState<SwapCourseDialog> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        '${date.year}年${date.month}月${date.day}日',
+                        l10n.dateYearMonthDay(date.year, date.month, date.day),
                         style: theme.textTheme.titleMedium,
                       ),
                       Text(
-                        '$weekday · $courseCount门课程',
+                        l10n.weekdayCourseCount(weekday, courseCount),
                         style: theme.textTheme.bodySmall?.copyWith(
                           color: theme.colorScheme.onSurfaceVariant,
                         ),

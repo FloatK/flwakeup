@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import '../../core/constants/app_strings.dart';
+import '../../l10n/app_localizations.dart';
 
 class AboutPage extends StatelessWidget {
   const AboutPage({super.key});
@@ -9,10 +9,11 @@ class AboutPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text(AppStrings.about),
+        title: Text(l10n.about),
       ),
       body: ListView(
         padding: const EdgeInsets.all(24),
@@ -40,7 +41,7 @@ class AboutPage extends StatelessWidget {
           const SizedBox(height: 4),
           Center(
             child: Text(
-              '课程表',
+              l10n.courseTable,
               style: theme.textTheme.bodyLarge?.copyWith(
                 color: theme.colorScheme.onSurfaceVariant,
               ),
@@ -64,7 +65,7 @@ class AboutPage extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    '开发者',
+                    l10n.developer,
                     style: theme.textTheme.titleSmall?.copyWith(
                       color: theme.colorScheme.primary,
                     ),
@@ -87,7 +88,7 @@ class AboutPage extends StatelessWidget {
                               style: theme.textTheme.titleMedium,
                             ),
                             Text(
-                              '独立开发者',
+                              l10n.independentDeveloper,
                               style: theme.textTheme.bodySmall?.copyWith(
                                 color: theme.colorScheme.onSurfaceVariant,
                               ),
@@ -115,14 +116,14 @@ class AboutPage extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    '关于应用',
+                    l10n.aboutApp,
                     style: theme.textTheme.titleSmall?.copyWith(
                       color: theme.colorScheme.primary,
                     ),
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'Flass 是一款简洁高效的课程表应用，支持教务系统导入、紧凑码分享、多课表管理等功能。',
+                    l10n.appDescription,
                     style: theme.textTheme.bodyMedium,
                   ),
                 ],
@@ -138,17 +139,17 @@ class AboutPage extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    '主要功能',
+                    l10n.mainFeatures,
                     style: theme.textTheme.titleSmall?.copyWith(
                       color: theme.colorScheme.primary,
                     ),
                   ),
                   const SizedBox(height: 8),
-                  _buildFeatureItem(Icons.import_export, '教务系统导入'),
-                  _buildFeatureItem(Icons.share, '紧凑码分享'),
-                  _buildFeatureItem(Icons.calendar_month, '多课表管理'),
-                  _buildFeatureItem(Icons.palette, '主题自定义'),
-                  _buildFeatureItem(Icons.view_week, '周视图展示'),
+                  _buildFeatureItem(Icons.import_export, l10n.featureEduImport),
+                  _buildFeatureItem(Icons.share, l10n.featureCompactShare),
+                  _buildFeatureItem(Icons.calendar_month, l10n.featureMultiSchedule),
+                  _buildFeatureItem(Icons.palette, l10n.featureThemeCustom),
+                  _buildFeatureItem(Icons.view_week, l10n.featureWeekView),
                 ],
               ),
             ),

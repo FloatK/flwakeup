@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'core/theme/app_theme.dart';
+import 'l10n/app_localizations.dart';
 import 'presentation/pages/about_page.dart';
 import 'presentation/pages/add_edit_course_page.dart';
 import 'presentation/pages/import_schedule_page.dart';
@@ -69,6 +70,7 @@ class App extends ConsumerWidget {
               : ThemeMode.light,
       title: 'Flass',
       localizationsDelegates: const [
+        AppLocalizations.delegate,
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,

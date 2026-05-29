@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/constants/app_colors.dart';
-import '../../core/constants/app_strings.dart';
 import '../../core/utils/vibrate.dart';
 import '../../data/models/course.dart';
+import '../../l10n/app_localizations.dart';
 import '../providers/theme_provider.dart';
 
 /// 课程时间段槽位。
@@ -40,8 +40,22 @@ class CourseGridWidget extends ConsumerWidget {
 
   static const double _periodLabelWidth = 40.0;
 
+  String _getDayLabel(AppLocalizations l10n, int index) {
+    switch (index) {
+      case 0: return l10n.mon;
+      case 1: return l10n.tue;
+      case 2: return l10n.wed;
+      case 3: return l10n.thu;
+      case 4: return l10n.fri;
+      case 5: return l10n.sat;
+      case 6: return l10n.sun;
+      default: return '';
+    }
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
     final weekStart =
         semesterStart.add(Duration(days: (displayedWeek - 1) * 7));
     final now = DateTime.now();
@@ -55,7 +69,7 @@ class CourseGridWidget extends ConsumerWidget {
       color: gridBgColor,
       child: Column(
         children: [
-          _buildHeader(context, ref, weekStart, todayStart),
+          _buildHeader(context, ref, l10n, weekStart, todayStart),
           Expanded(
             child: SingleChildScrollView(
               child: _buildGridBody(context, ref),
@@ -71,7 +85,7 @@ class CourseGridWidget extends ConsumerWidget {
   // ---------------------------------------------------------------------------
 
   Widget _buildHeader(
-      BuildContext context, WidgetRef ref, DateTime weekStart, DateTime todayStart) {
+      BuildContext context, WidgetRef ref, AppLocalizations l10n, DateTime weekStart, DateTime todayStart) {
     final colorScheme = Theme.of(context).colorScheme;
     final weekdays = displayedWeekdays.where((d) => d >= 1 && d <= 7).toList()
       ..sort();
@@ -127,7 +141,7 @@ class CourseGridWidget extends ConsumerWidget {
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    AppStrings.dayLabels[i],
+                    _getDayLabel(l10n, i),
                     style: TextStyle(
                       fontSize: 11,
                       color: colorScheme.onSurfaceVariant,

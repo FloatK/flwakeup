@@ -5,9 +5,9 @@ import 'package:uuid/uuid.dart';
 
 import '../../core/constants/app_colors.dart';
 import '../../core/utils/vibrate.dart';
-import '../../core/constants/app_strings.dart';
 import '../../core/utils/ui_utils.dart';
 import '../../data/models/course.dart';
+import '../../l10n/app_localizations.dart';
 import '../providers/course_provider.dart';
 
 class AddEditCoursePage extends ConsumerStatefulWidget {
@@ -54,6 +54,21 @@ class _AddEditCoursePageState extends ConsumerState<AddEditCoursePage> {
   double _lastScrollPosition = 0;
 
   bool get _isEditing => widget.courseId != null;
+
+  AppLocalizations get l10n => AppLocalizations.of(context)!;
+
+  String _getDayLabel(int dayOfWeek) {
+    switch (dayOfWeek) {
+      case 1: return l10n.mon;
+      case 2: return l10n.tue;
+      case 3: return l10n.wed;
+      case 4: return l10n.thu;
+      case 5: return l10n.fri;
+      case 6: return l10n.sat;
+      case 7: return l10n.sun;
+      default: return '';
+    }
+  }
 
   @override
   void initState() {
@@ -119,7 +134,7 @@ class _AddEditCoursePageState extends ConsumerState<AddEditCoursePage> {
     // Each time entry must have at least one week selected
     for (int i = 0; i < _timeEntries.length; i++) {
       if (_timeEntries[i].selectedWeeks.isEmpty) {
-        showAppSnackBar(context, AppStrings.selectWeeksHint(i + 1), isError: true);
+        showAppSnackBar(context, l10n.selectWeeksHint(i + 1), isError: true);
         return;
       }
     }
@@ -155,12 +170,12 @@ class _AddEditCoursePageState extends ConsumerState<AddEditCoursePage> {
       }
 
       if (mounted) {
-        showAppSnackBar(context, _isEditing ? AppStrings.courseUpdated : AppStrings.courseAdded);
+        showAppSnackBar(context, _isEditing ? l10n.courseUpdated : l10n.courseAdded);
         context.pop();
       }
     } catch (e) {
       if (mounted) {
-        showAppSnackBar(context, '${AppStrings.saveFailed}: $e', isError: true);
+        showAppSnackBar(context, '${l10n.saveFailed}: $e', isError: true);
       }
     } finally {
       if (mounted) setState(() => _saving = false);
@@ -196,7 +211,7 @@ class _AddEditCoursePageState extends ConsumerState<AddEditCoursePage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(_isEditing ? AppStrings.editCourse : AppStrings.addCourse),
+        title: Text(_isEditing ? l10n.editCourse : l10n.addCourse),
       ),
       body: Form(
         key: _formKey,
@@ -207,47 +222,47 @@ class _AddEditCoursePageState extends ConsumerState<AddEditCoursePage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // ── Basic info ──
-              _sectionTitle(context, AppStrings.basicInfo),
+              _sectionTitle(context, l10n.basicInfo),
               const SizedBox(height: 8),
               TextFormField(
                 controller: _nameController,
-                decoration: const InputDecoration(
-                  labelText: AppStrings.courseName,
-                  border: OutlineInputBorder(),
+                decoration: InputDecoration(
+                  labelText: l10n.courseName,
+                  border: const OutlineInputBorder(),
                 ),
                 validator: (v) =>
-                    (v == null || v.trim().isEmpty) ? AppStrings.enterCourseName : null,
+                    (v == null || v.trim().isEmpty) ? l10n.enterCourseName : null,
               ),
               const SizedBox(height: 12),
               TextFormField(
                 controller: _teacherController,
-                decoration: const InputDecoration(
-                  labelText: AppStrings.teacher,
-                  border: OutlineInputBorder(),
+                decoration: InputDecoration(
+                  labelText: l10n.teacher,
+                  border: const OutlineInputBorder(),
                 ),
                 validator: (v) =>
-                    (v == null || v.trim().isEmpty) ? AppStrings.enterTeacher : null,
+                    (v == null || v.trim().isEmpty) ? l10n.enterTeacher : null,
               ),
               const SizedBox(height: 12),
               TextFormField(
                 controller: _locationController,
-                decoration: const InputDecoration(
-                  labelText: AppStrings.locationOptional,
-                  border: OutlineInputBorder(),
+                decoration: InputDecoration(
+                  labelText: l10n.locationOptional,
+                  border: const OutlineInputBorder(),
                 ),
               ),
 
               const SizedBox(height: 24),
 
               // ── Color ──
-              _sectionTitle(context, AppStrings.courseColor),
+              _sectionTitle(context, l10n.courseColor),
               const SizedBox(height: 8),
               _buildColorPicker(colorScheme),
 
               const SizedBox(height: 24),
 
               // ── Time details ──
-              _sectionTitle(context, AppStrings.timeSettings),
+              _sectionTitle(context, l10n.timeSettings),
               const SizedBox(height: 8),
               for (int i = 0; i < _timeEntries.length; i++)
                 _buildTimeEntryCard(i, colorScheme),
@@ -271,7 +286,7 @@ class _AddEditCoursePageState extends ConsumerState<AddEditCoursePage> {
                   child: CircularProgressIndicator(strokeWidth: 2),
                 )
               : const Icon(Icons.save),
-          label: Text(_saving ? '' : AppStrings.save),
+          label: Text(_saving ? '' : l10n.save),
         ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
@@ -356,7 +371,7 @@ class _AddEditCoursePageState extends ConsumerState<AddEditCoursePage> {
             Row(
               children: [
                 Text(
-                  AppStrings.timeSlotLabel(index + 1),
+                  l10n.timeSlotLabel(index + 1),
                   style: textTheme.titleSmall
                       ?.copyWith(fontWeight: FontWeight.w500),
                 ),
@@ -379,17 +394,17 @@ class _AddEditCoursePageState extends ConsumerState<AddEditCoursePage> {
                   child: DropdownButtonFormField<int>(
                     initialValue: entry.dayOfWeek,
                     isDense: true,
-                    decoration: const InputDecoration(
-                      labelText: AppStrings.weekday,
-                      border: OutlineInputBorder(),
+                    decoration: InputDecoration(
+                      labelText: l10n.weekday,
+                      border: const OutlineInputBorder(),
                       contentPadding:
-                          EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                          const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
                     ),
                     items: List.generate(
                       7,
                       (i) => DropdownMenuItem(
                         value: i + 1,
-                        child: Text(AppStrings.dayLabel(i + 1)),
+                        child: Text(_getDayLabel(i + 1)),
                       ),
                     ),
                     onChanged: (v) {
@@ -402,17 +417,17 @@ class _AddEditCoursePageState extends ConsumerState<AddEditCoursePage> {
                   child: DropdownButtonFormField<int>(
                     initialValue: entry.startPeriod,
                     isDense: true,
-                    decoration: const InputDecoration(
-                      labelText: AppStrings.startPeriod,
-                      border: OutlineInputBorder(),
+                    decoration: InputDecoration(
+                      labelText: l10n.startPeriod,
+                      border: const OutlineInputBorder(),
                       contentPadding:
-                          EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                          const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
                     ),
                     items: List.generate(
                       12,
                       (i) => DropdownMenuItem(
                         value: i + 1,
-                        child: Text(AppStrings.periodLabel(i + 1)),
+                        child: Text(l10n.periodLabel(i + 1)),
                       ),
                     ),
                     onChanged: (v) {
@@ -425,17 +440,17 @@ class _AddEditCoursePageState extends ConsumerState<AddEditCoursePage> {
                   child: DropdownButtonFormField<int>(
                     initialValue: entry.duration,
                     isDense: true,
-                    decoration: const InputDecoration(
-                      labelText: AppStrings.duration,
-                      border: OutlineInputBorder(),
+                    decoration: InputDecoration(
+                      labelText: l10n.duration,
+                      border: const OutlineInputBorder(),
                       contentPadding:
-                          EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                          const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
                     ),
                     items: List.generate(
                       3,
                       (i) => DropdownMenuItem(
                         value: i + 1,
-                        child: Text(AppStrings.durationLabel(i + 1)),
+                        child: Text(l10n.durationLabel(i + 1)),
                       ),
                     ),
                     onChanged: (v) {
@@ -453,21 +468,21 @@ class _AddEditCoursePageState extends ConsumerState<AddEditCoursePage> {
               spacing: 4,
               runSpacing: 4,
               children: [
-                _buildWeekChip(AppStrings.allWeeks, () {
+                _buildWeekChip(l10n.allWeeks, () {
                   Vibrate.light();
                   setState(() {
                     entry.selectedWeeks =
                         Set<int>.from(List.generate(20, (i) => i + 1));
                   });
                 }),
-                _buildWeekChip(AppStrings.singleWeek, () {
+                _buildWeekChip(l10n.singleWeek, () {
                   Vibrate.light();
                   setState(() {
                     entry.selectedWeeks =
                         Set<int>.from(List.generate(10, (i) => i * 2 + 1));
                   });
                 }),
-                _buildWeekChip(AppStrings.doubleWeek, () {
+                _buildWeekChip(l10n.doubleWeek, () {
                   Vibrate.light();
                   setState(() {
                     entry.selectedWeeks =
@@ -542,7 +557,7 @@ class _AddEditCoursePageState extends ConsumerState<AddEditCoursePage> {
     return OutlinedButton.icon(
       onPressed: () { Vibrate.light(); setState(() => _timeEntries.add(_TimeEntryData())); },
       icon: const Icon(Icons.add, size: 18),
-      label: const Text(AppStrings.addTimeSlot),
+      label: Text(l10n.addTimeSlot),
     );
   }
 }

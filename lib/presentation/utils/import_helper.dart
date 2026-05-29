@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 
-import '../../core/constants/app_strings.dart';
 import '../../core/utils/vibrate.dart';
 import '../../data/models/course.dart';
 import '../../data/models/schedule.dart';
+import '../../l10n/app_localizations.dart';
 import '../providers/course_provider.dart';
 import '../providers/schedule_provider.dart';
 
@@ -70,6 +70,8 @@ class _ImportChoiceDialogState extends ConsumerState<_ImportChoiceDialog> {
   bool _isImporting = false;
   String? _error;
 
+  AppLocalizations get l10n => AppLocalizations.of(context)!;
+
   Future<void> _doOverwrite() async {
     setState(() {
       _isImporting = true;
@@ -100,13 +102,13 @@ class _ImportChoiceDialogState extends ConsumerState<_ImportChoiceDialog> {
     final scheduleName = await showDialog<String>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text(AppStrings.newSchedule),
+        title: Text(l10n.newSchedule),
         content: TextField(
           controller: nameCtrl,
-          decoration: const InputDecoration(
-            labelText: AppStrings.scheduleName,
-            hintText: AppStrings.scheduleNameHint,
-            border: OutlineInputBorder(),
+          decoration: InputDecoration(
+            labelText: l10n.scheduleName,
+            hintText: l10n.scheduleNameHint,
+            border: const OutlineInputBorder(),
           ),
         ),
         actions: [
@@ -115,14 +117,14 @@ class _ImportChoiceDialogState extends ConsumerState<_ImportChoiceDialog> {
               Vibrate.light();
               Navigator.pop(ctx);
             },
-            child: const Text(AppStrings.cancel),
+            child: Text(l10n.cancel),
           ),
           ElevatedButton(
             onPressed: () {
               Vibrate.light();
               Navigator.pop(ctx, nameCtrl.text.trim());
             },
-            child: const Text(AppStrings.confirmImport),
+            child: Text(l10n.confirmImport),
           ),
         ],
       ),
@@ -197,17 +199,17 @@ class _ImportChoiceDialogState extends ConsumerState<_ImportChoiceDialog> {
   Widget build(BuildContext context) {
     return AlertDialog(
       title: Text(
-          _isImporting ? '导入中...' : '共 ${widget.courseCount} 门课程'),
+          _isImporting ? l10n.importing : l10n.courseCountTitle(widget.courseCount)),
       content: _isImporting
           ? const SizedBox(
               height: 60,
               child: Center(child: CircularProgressIndicator()),
             )
           : _error != null
-              ? Text('导入失败: $_error',
+              ? Text(l10n.importFailedMsg(_error!),
                   style:
                       TextStyle(color: Theme.of(context).colorScheme.error))
-              : const Text('选择导入方式：'),
+              : Text(l10n.chooseImportMethod),
       actions: _isImporting
           ? []
           : [
@@ -216,21 +218,21 @@ class _ImportChoiceDialogState extends ConsumerState<_ImportChoiceDialog> {
                   Vibrate.light();
                   _doOverwrite();
                 },
-                child: const Text('覆盖当前课表'),
+                child: Text(l10n.overwriteCurrentSchedule),
               ),
               TextButton(
                 onPressed: () {
                   Vibrate.light();
                   _doNewSchedule();
                 },
-                child: const Text('新建课表并导入'),
+                child: Text(l10n.createNewScheduleAndImport),
               ),
               TextButton(
                 onPressed: () {
                   Vibrate.light();
                   Navigator.pop(context);
                 },
-                child: const Text('取消'),
+                child: Text(l10n.cancel),
               ),
             ],
     );
@@ -309,6 +311,8 @@ class _SemesterConfigDialogState extends State<_SemesterConfigDialog> {
   late DateTime _selectedDate;
   late TextEditingController _weeksController;
 
+  AppLocalizations get l10n => AppLocalizations.of(context)!;
+
   @override
   void initState() {
     super.initState();
@@ -340,19 +344,19 @@ class _SemesterConfigDialogState extends State<_SemesterConfigDialog> {
     final dateStr =
         '${_selectedDate.year}-${_selectedDate.month.toString().padLeft(2, '0')}-${_selectedDate.day.toString().padLeft(2, '0')}';
     return AlertDialog(
-      title: const Text('设置学期'),
+      title: Text(l10n.setSemester),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           ListTile(
-            title: const Text('开学日期'),
+            title: Text(l10n.startDate),
             subtitle: Text(dateStr),
             trailing: const Icon(Icons.calendar_today),
             onTap: _pickDate,
           ),
           TextField(
             controller: _weeksController,
-            decoration: const InputDecoration(labelText: '总周数'),
+            decoration: InputDecoration(labelText: l10n.totalWeeks),
             keyboardType: TextInputType.number,
           ),
         ],
@@ -360,7 +364,7 @@ class _SemesterConfigDialogState extends State<_SemesterConfigDialog> {
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
-          child: const Text('跳过'),
+          child: Text(l10n.skip),
         ),
         ElevatedButton(
           onPressed: () {
@@ -375,7 +379,7 @@ class _SemesterConfigDialogState extends State<_SemesterConfigDialog> {
               ),
             );
           },
-          child: const Text('确定'),
+          child: Text(l10n.confirm),
         ),
       ],
     );

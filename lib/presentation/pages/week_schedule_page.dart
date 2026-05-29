@@ -5,10 +5,9 @@ import 'package:go_router/go_router.dart';
 import '../../core/config/action_item.dart';
 import '../../core/utils/vibrate.dart';
 import '../../core/config/app_bar_config.dart';
-import '../../core/constants/app_strings.dart';
-import '../../data/datasources/database.dart' hide Course, TimeDetail, Schedule;
 import '../../data/models/course.dart';
 import '../../data/models/schedule.dart';
+import '../../l10n/app_localizations.dart';
 import '../providers/course_provider.dart';
 import '../providers/schedule_provider.dart';
 import '../widgets/course_detail_bottom_sheet.dart';
@@ -30,6 +29,8 @@ class _WeekSchedulePageState extends ConsumerState<WeekSchedulePage> {
   late final PageController _pageController;
   int _displayedWeek = 1;  // Updated by PageController listener
   List<ActionItem> _appBarActionItems = [];
+
+  AppLocalizations get l10n => AppLocalizations.of(context)!;
 
   @override
   void initState() {
@@ -167,7 +168,7 @@ class _WeekSchedulePageState extends ConsumerState<WeekSchedulePage> {
             ),
         IconButton(
           icon: const Icon(Icons.more_vert),
-          tooltip: AppStrings.more,
+          tooltip: l10n.more,
           onPressed: () {
             Vibrate.light();
             _showSchedulePopup(context);
@@ -178,8 +179,8 @@ class _WeekSchedulePageState extends ConsumerState<WeekSchedulePage> {
   }
 
   String _buildTitle(Schedule? schedule, int displayedWeek) {
-    if (schedule == null) return AppStrings.appTitle;
-    return '${AppStrings.weekLabel}$displayedWeek${AppStrings.weekSuffix}';
+    if (schedule == null) return l10n.appTitle;
+    return '${l10n.weekLabel}$displayedWeek${l10n.weekSuffix}';
   }
 
   String _buildTodayDateLabel() {
@@ -199,12 +200,11 @@ class _WeekSchedulePageState extends ConsumerState<WeekSchedulePage> {
     if (schedule == null) {
       return Center(
         child: Text(
-          AppStrings.noCourse,
+          l10n.noCourse,
           style: Theme.of(context).textTheme.titleMedium,
         ),
       );
     }
-    
     return courseListAsync.when(
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (e, _) => _buildErrorWidget(e),
@@ -212,7 +212,7 @@ class _WeekSchedulePageState extends ConsumerState<WeekSchedulePage> {
         if (courses.isEmpty) {
           return Center(
             child: Text(
-              AppStrings.noCourse,
+              l10n.noCourse,
               style: Theme.of(context).textTheme.titleMedium,
             ),
           );
@@ -229,12 +229,12 @@ class _WeekSchedulePageState extends ConsumerState<WeekSchedulePage> {
                     color: Theme.of(context).colorScheme.onSurfaceVariant),
                 const SizedBox(height: 16),
                 Text(
-                  AppStrings.startDateNotSet,
+                  l10n.startDateNotSet,
                   style: Theme.of(context).textTheme.titleMedium,
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  AppStrings.startDateNotSetHint,
+                  l10n.startDateNotSetHint,
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
@@ -278,7 +278,7 @@ class _WeekSchedulePageState extends ConsumerState<WeekSchedulePage> {
             ),
             const SizedBox(height: 12),
             Text(
-              AppStrings.loadFailed,
+              l10n.loadFailed,
               style: Theme.of(context).textTheme.titleMedium,
             ),
             const SizedBox(height: 4),
@@ -294,7 +294,7 @@ class _WeekSchedulePageState extends ConsumerState<WeekSchedulePage> {
                 ref.invalidate(courseListProvider);
               },
               icon: const Icon(Icons.refresh),
-              label: const Text(AppStrings.retry),
+              label: Text(l10n.retry),
             ),
           ],
         ),
@@ -316,15 +316,15 @@ class _WeekSchedulePageState extends ConsumerState<WeekSchedulePage> {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text(AppStrings.confirmDeleteTitle),
-        content: Text('${AppStrings.confirmDeleteMessage}"${course.name}"?'),
+        title: Text(l10n.confirmDeleteTitle),
+        content: Text('${l10n.confirmDeleteMessage}"${course.name}"?'),
         actions: [
           TextButton(
             onPressed: () {
               Vibrate.light();
               Navigator.pop(ctx);
             },
-            child: const Text(AppStrings.cancel),
+            child: Text(l10n.cancel),
           ),
           TextButton(
             onPressed: () async {
@@ -334,7 +334,7 @@ class _WeekSchedulePageState extends ConsumerState<WeekSchedulePage> {
                   .read(courseListProvider.notifier)
                   .deleteCourse(course.id);
             },
-            child: const Text(AppStrings.confirm),
+            child: Text(l10n.confirm),
           ),
         ],
       ),

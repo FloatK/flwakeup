@@ -6,12 +6,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 
-import '../../core/constants/app_strings.dart';
 import '../../core/utils/export_utils.dart';
 import '../../core/utils/import_utils.dart';
 import '../../core/utils/ui_utils.dart';
 import '../../core/utils/vibrate.dart';
 import '../../data/models/course.dart';
+import '../../l10n/app_localizations.dart';
 import '../utils/import_helper.dart';
 
 /// 课表导出对话框。
@@ -31,22 +31,23 @@ class ExportDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final compact = ExportUtils.compactEncode(courses);
 
     return AlertDialog(
-      title: const Text(AppStrings.shareSchedule),
-      content: const Text(AppStrings.chooseExportMethod),
+      title: Text(l10n.shareSchedule),
+      content: Text(l10n.chooseExportMethod),
       actions: [
         TextButton(
           onPressed: () {
             Vibrate.light();
             Navigator.pop(context);
-            final copyText = '将该条消息复制，点击从文本导入即可导入课表。\n「$compact」';
+            final copyText = l10n.exportCopyMessage(compact);
             Clipboard.setData(ClipboardData(text: copyText));
             showAppSnackBar(
-                context, AppStrings.copiedMessage(compact.length));
+                context, l10n.copiedMessage(compact.length));
           },
-          child: const Text(AppStrings.copyCompactCode),
+          child: Text(l10n.copyCompactCode),
         ),
         TextButton(
           onPressed: () async {
@@ -56,28 +57,27 @@ class ExportDialog extends StatelessWidget {
               final dir = await getTemporaryDirectory();
               final file = File(
                   '${dir.path}/fl${DateTime.now().microsecondsSinceEpoch}.txt');
-              final fileText =
-                  '将该条消息复制，点击从文本导入即可导入课表。\n「$compact」';
+              final fileText = l10n.exportCopyMessage(compact);
               await file.writeAsString(fileText);
               await Share.shareXFiles(
                 [XFile(file.path)],
-                text: '课表数据',
+                text: l10n.scheduleData,
               );
             } catch (e) {
               if (context.mounted) {
-                showAppSnackBar(context, '${AppStrings.shareFailed}: $e',
+                showAppSnackBar(context, '${l10n.shareFailed}: $e',
                     isError: true);
               }
             }
           },
-          child: const Text(AppStrings.shareFile),
+          child: Text(l10n.shareFile),
         ),
         TextButton(
           onPressed: () {
             Vibrate.light();
             Navigator.pop(context);
           },
-          child: const Text(AppStrings.cancel),
+          child: Text(l10n.cancel),
         ),
       ],
     );
@@ -104,6 +104,8 @@ class ImportFromTextDialog extends ConsumerStatefulWidget {
 class _ImportFromTextDialogState extends ConsumerState<ImportFromTextDialog> {
   final _controller = TextEditingController();
 
+  AppLocalizations get l10n => AppLocalizations.of(context)!;
+
   @override
   void dispose() {
     _controller.dispose();
@@ -113,13 +115,13 @@ class _ImportFromTextDialogState extends ConsumerState<ImportFromTextDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: const Text(AppStrings.importFromText),
+      title: Text(l10n.importFromText),
       content: TextField(
         controller: _controller,
         maxLines: 8,
-        decoration: const InputDecoration(
-          hintText: AppStrings.pasteCompactHint,
-          border: OutlineInputBorder(),
+        decoration: InputDecoration(
+          hintText: l10n.pasteCompactHint,
+          border: const OutlineInputBorder(),
         ),
       ),
       actions: [
@@ -133,21 +135,21 @@ class _ImportFromTextDialogState extends ConsumerState<ImportFromTextDialog> {
             }
             _controller.text = clipboardData.text!.trim();
           },
-          child: const Text(AppStrings.pasteFromClipboard),
+          child: Text(l10n.pasteFromClipboard),
         ),
         TextButton(
           onPressed: () {
             Vibrate.light();
             Navigator.pop(context);
           },
-          child: const Text(AppStrings.cancel),
+          child: Text(l10n.cancel),
         ),
         TextButton(
           onPressed: () {
             Vibrate.light();
             _parseAndImport(context);
           },
-          child: const Text(AppStrings.parse),
+          child: Text(l10n.parse),
         ),
       ],
     );
@@ -162,14 +164,14 @@ class _ImportFromTextDialogState extends ConsumerState<ImportFromTextDialog> {
       final result = ImportUtils.parseAndPrepareImport(text);
       if (result == null) {
         if (mounted) {
-          showAppSnackBar(context, AppStrings.invalidFormat, isError: true);
+          showAppSnackBar(context, l10n.invalidFormat, isError: true);
         }
         return;
       }
       courses = result;
     } catch (e) {
       if (mounted) {
-        showAppSnackBar(context, '${AppStrings.importFailed}: $e',
+        showAppSnackBar(context, '${l10n.importFailed}: $e',
             isError: true);
       }
       return;
@@ -198,7 +200,7 @@ class _ImportFromTextDialogState extends ConsumerState<ImportFromTextDialog> {
         onComplete: () {
           if (context.mounted) {
             showAppSnackBar(
-                context, AppStrings.importCourseCount(courses.length));
+                context, l10n.importCourseCount(courses.length));
           }
         },
       );
